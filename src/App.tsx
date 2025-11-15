@@ -15,6 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import TableUsageExample from "./components/custom/table-usage-example.tsx";
 
 function App() {
   return (
@@ -143,6 +144,8 @@ function App() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
+
+      <TableUsageExample />
     </>
   );
 }
