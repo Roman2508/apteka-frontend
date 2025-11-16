@@ -56,12 +56,12 @@ const data: Counterparty[] = [
 ];
 
 const columns = [
-  {
-    id: "select",
-    header: () => <div className="w-4" />,
-    cell: () => <Checkbox className="translate-y-[1px]" />,
-    enableSorting: false, // Вимкнути сортування для чекбокса
-  },
+  // {
+  //   id: "select",
+  //   header: () => <div className="w-4" />,
+  //   cell: () => <Checkbox className="translate-y-[1px]" />,
+  //   enableSorting: false, // Вимкнути сортування для чекбокса
+  // },
   {
     accessorKey: "code",
     header: "Код",
@@ -99,7 +99,7 @@ const columns = [
     header: "Активний",
     cell: ({ row }: any) => (row.original.active ? "Так" : ""),
   },
-] as const;
+];
 
 export default function TableUsageExample() {
   const [selectedRow, setSelectedRow] = useState<Counterparty | null>(null);
