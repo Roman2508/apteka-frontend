@@ -1,31 +1,34 @@
-import { MoreHorizontal, Save, Trash2 } from "lucide-react";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
-import { Label } from "./components/ui/label";
-import { cn } from "./lib/utils";
-import { Checkbox } from "./components/ui/checkbox";
-import { DynamicTabs } from "./components/custom/dynamic-tabs.tsx";
-import Layout from "./components/layout/layout.tsx";
-import CounterpartiesPage from "./components/custom/counterparties.tsx";
+import { MoreHorizontal, Save, Trash2 } from 'lucide-react'
+
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
+  DialogHeader,
+  DialogContent,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import TableUsageExample from "./components/custom/table-usage-example.tsx";
-
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { cn } from './lib/utils'
+import { Label } from './components/ui/label'
+import { Input } from './components/ui/input'
+import { Button } from './components/ui/button'
+import { Checkbox } from './components/ui/checkbox'
+import Layout from './components/layout/layout.tsx'
+import CounterpartiesPage from './components/custom/counterparties.tsx'
+import TableUsageExample from './components/custom/table-usage-example.tsx'
 
 function App() {
   return (
     <>
       <Layout>
-        <CounterpartiesPage />
+        {/* <CounterpartiesPage />
+        <br />
+        <br /> */}
+
+        <TableUsageExample />
       </Layout>
 
-      <div className="space-x-2 p-4">
+      <div className="space-x-2 space-y-2 p-4">
         {/* Обычные кнопки */}
         <Button variant="default">Створити</Button>
         <Button variant="default" disabled>
@@ -34,33 +37,33 @@ function App() {
 
         {/* Основные */}
         <Button variant="primary">ОК</Button>
-        <Button variant="primary">Записать</Button>
+        <Button variant="primary">Записати</Button>
         <Button variant="primary" disabled>
-          Записать
+          Записати
         </Button>
 
         {/* Второстепенные */}
-        <Button variant="secondary">...</Button>
-        <Button variant="secondary">
+        <Button variant="default">...</Button>
+        <Button variant="default">
           <MoreHorizontal className="w-4 h-4 mr-1" />
-          Ещё
+          Ще
         </Button>
 
         {/* С иконками */}
         <Button variant="primary">
           <Save className="w-4 h-4 mr-1" />
-          Записать и закрыть
+          Записати і закрити
         </Button>
 
         <Button variant="destructive">
           <Trash2 className="w-4 h-4 mr-1" />
-          Удалить
+          Видалити
         </Button>
 
-        <Button variant="link">Подробно</Button>
+        <Button variant="link">Детально</Button>
       </div>
 
-      <div className="space-y-3 p-4 font-1c text-sm max-w-md">
+      <div className="space-y-3 p-4 text-sm max-w-md">
         {/* Звичайне поле */}
         <div className="flex items-center gap-3">
           <Label className="w-32 text-right">Найменування:</Label>
@@ -87,12 +90,12 @@ function App() {
 
         {/* Багаторядкове (як "Банківські реквізити") — використовуй <textarea> */}
         <div className="flex items-start gap-3">
-          <Label className="w-32 text-right pt-1">Банківські реквізити:</Label>
+          <Label className="w-32 text-right pt-1 truncate">Банківські реквізити:</Label>
           <textarea
             className={cn(
-              "flex w-full min-h-16 px-2 py-1 text-sm bg-white border border-[#C0C0C0] rounded-none",
-              "focus-visible:outline-none focus-visible:border-[#FFCC00] focus-visible:ring-2 focus-visible:ring-[#FFCC00] focus-visible:ring-offset-1",
-              "font-1c text-1c resize-none"
+              'flex w-full min-h-16 px-2 py-1 text-sm bg-white border border-neutral-800 rounded-sm',
+              'focus-visible:outline-none focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+              'resize-none'
             )}
             placeholder="МФО, рахунок..."
           />
@@ -105,7 +108,7 @@ function App() {
         </div>
       </div>
 
-      <div className="space-y-4 p-4 max-w-md font-1c text-sm">
+      <div className="space-y-4 p-4 max-w-md text-sm">
         {/* Обов’язкове поле (порожнє → червона лінія) */}
         <div className="flex items-center gap-3">
           <Label className="w-32 text-right">Найменування*:</Label>
@@ -133,22 +136,53 @@ function App() {
 
       <Checkbox />
 
-      <Dialog>
-        <DialogTrigger>Open</DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <hr className="my-4" />
+      <hr className="my-4" />
+      <div className="w-100 h-10 bg-success-secondary">1</div>
+      <div className="w-100 h-10 bg-success-primary">1</div>
+      <div className="w-100 h-10 bg-[#0066CC]">1</div>
 
-      <TableUsageExample />
+      <hr className="my-4" />
+      <hr className="my-4" />
+      <div className="w-100 h-10 bg-primary-100">100</div>
+      <div className="w-100 h-10 bg-primary-200">200</div>
+      <div className="w-100 h-10 bg-primary-300">300</div>
+      <div className="w-100 h-10 bg-primary-400">400</div>
+      <div className="w-100 h-10 bg-primary-500">500</div>
+      <div className="w-100 h-10 bg-primary-600">600</div>
+      <div className="w-100 h-10 bg-primary-700">700</div>
+      <div className="w-100 h-10 bg-primary-800">800</div>
+      <div className="w-100 h-10 bg-primary-900">900</div>
+
+      <hr className="my-4" />
+      <hr className="my-4" />
+      <div className="w-100 h-10 bg-neutral-100">1</div>
+      <div className="w-100 h-10 bg-neutral-200">1</div>
+      <div className="w-100 h-10 bg-neutral-300">1</div>
+      <div className="w-100 h-10 bg-neutral-400">1</div>
+      <div className="w-100 h-10 bg-neutral-500">1</div>
+      <div className="w-100 h-10 bg-neutral-600">1</div>
+      <div className="w-100 h-10 bg-neutral-700">1</div>
+      <div className="w-100 h-10 bg-neutral-800">1</div>
+      <div className="w-100 h-10 bg-neutral-900">1</div>
+
+      <hr className="my-4" />
+      <hr className="my-4" />
+      <div className="w-100 h-10 bg-destructive-100">1</div>
+      <div className="w-100 h-10 bg-destructive-200">2</div>
+      <div className="w-100 h-10 bg-destructive-300">3</div>
+      <div className="w-100 h-10 bg-destructive-400">4</div>
+      <div className="w-100 h-10 bg-destructive-500">5</div>
+      <div className="w-100 h-10 bg-destructive-600">6</div>
+      <div className="w-100 h-10 bg-destructive-700">7</div>
+      <div className="w-100 h-10 bg-destructive-800">8</div>
+      <div className="w-100 h-10 bg-destructive-900">9</div>
+
+      <hr className="my-4" />
+      <hr className="my-4" />
+      <br />
     </>
-  );
+  )
 }
 
-export default App;
+export default App

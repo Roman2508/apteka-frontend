@@ -1,8 +1,8 @@
-import { type FC, type PropsWithChildren } from "react";
+import { useState, type FC, type PropsWithChildren } from 'react'
 
-import { Toolbar } from "../custom/toolbar";
-import { SidebarTree } from "../custom/sidebar-tree";
-import { DynamicTabs } from "../custom/dynamic-tabs";
+import { PageToolbar } from '../custom/page-toolbar'
+import { SidebarTree } from '../custom/sidebar-tree'
+import { DynamicTabs } from '../custom/dynamic-tabs'
 
 /* 
 Пропс для верхньоъ області сторінок:
@@ -15,8 +15,10 @@ import { DynamicTabs } from "../custom/dynamic-tabs";
 */
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
+  const [globalFilter, setGlobalFilter] = useState('')
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden min-h-screen bg-[#FAFAFA]">
+    <div className="h-screen flex flex-col overflow-hidden min-h-screen bg-white">
       <div className="flex flex-1 overflow-hidden">
         {/* === ЛІВА ПАНЕЛЬ (ДЕРЕВО) === */}
         <SidebarTree />
@@ -26,15 +28,17 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
           {/* === ВКЛАДКИ + ТУЛБАР === */}
           <div className="flex flex-col">
             <DynamicTabs />
-            <Toolbar />
+            {/* <div className="px-4">
+              <PageToolbar globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} />
+            </div> */}
           </div>
 
           {/* === КОНТЕНТ === */}
-          <main className="flex-1 overflow-auto p-4">{children}</main>
+          <main className="flex-1 p-4">{children}</main>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout
