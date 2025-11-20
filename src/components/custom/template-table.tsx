@@ -69,8 +69,8 @@ export function TemplateTable<TData>({
   })
 
   return (
-    <div className="flex flex-col h-full text-sm rounded-sm overflow-hidden">
-      <div className="flex-1 overflow-auto border border-neutral-800 bg-white max-h-[calc(100vh-200px)]">
+    <div className="flex flex-col flex-1 text-sm rounded-sm overflow-hidden">
+      <div className="flex-1 overflow-auto border border-neutral-800 bg-white">
         {/* === ТАБЛИЦЯ === */}
         <table className="w-full border-collapse text-[13px]">
           <thead>
@@ -79,7 +79,7 @@ export function TemplateTable<TData>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="bg-neutral-300 border [&>*:not(:last-child)]:border-r-neutral-800 px-2 py-1 text-left font-medium"
+                    className="bg-neutral-300 border [&>*:not(:last-child)]:border-r-neutral-800 px-2 py-1 text-left font-medium sticky top-[-1px] z-1"
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -92,7 +92,8 @@ export function TemplateTable<TData>({
               </tr>
             ))}
           </thead>
-          <tbody>
+
+          <tbody className=''>
             {table.getRowModel().rows.map((row) => {
               const isSelected = selectedRow === row.original
               return (

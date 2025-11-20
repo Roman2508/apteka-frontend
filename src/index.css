@@ -35,7 +35,8 @@
   --neutral-500: #e0e0e0;
   --neutral-600: #d4d4d4;
   --neutral-700: #c8c8c8;
-  --neutral-800: #c0c0c0; /* default border */
+  --neutral-800: #c0c0c0;
+  /* default border */
   --neutral-900: #808080;
 
   --primary-50: #ffffcc;
@@ -172,7 +173,9 @@ body {
 @layer base {
   * {
     @apply border-border font-[MS_Sans_Serif];
+    scrollbar-width: thin;
   }
+
   body {
     /* @apply text-base; */
     /* @apply max-h-screen overflow-hidden; */

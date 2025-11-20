@@ -40,7 +40,9 @@ interface Props {
   searchPlaceholder?: string
   setGlobalFilter: Dispatch<SetStateAction<string>>
 }
-
+/* NOT USED */
+/* NOT USED */
+/* NOT USED */
 export function PageToolbar({ globalFilter, setGlobalFilter, searchPlaceholder = 'Пошук (Shift+F)' }: Props) {
   return (
     <div className="mb-4">

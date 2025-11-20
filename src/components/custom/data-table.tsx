@@ -10,7 +10,9 @@ interface DataTableProps<TData> {
   selectedRow?: TData | null
   onRowSelect?: (row: TData) => void
 }
-
+/* NOT USED */
+/* NOT USED */
+/* NOT USED */
 export function DataTable<TData>({ columns, data, selectedRow, onRowSelect }: DataTableProps<TData>) {
   const table = useReactTable({
     data,

@@ -54,7 +54,7 @@ export function ConfigurableTable<TData>({
 
   // Helper to render the table content
   const renderTableContent = (data: TData[], columns: ColumnDef<TData>[], toolbarConfig?: DynamicToolbarProps) => (
-    <div className="h-full flex flex-col gap-2">
+    <div className="flex-1 flex flex-col gap-2 overflow-hidden">
       {toolbarConfig && <DynamicToolbar {...toolbarConfig} />}
       <TemplateTable
         columns={columns}
@@ -77,7 +77,7 @@ export function ConfigurableTable<TData>({
       {topToolbar && <DynamicToolbar {...topToolbar} className="mb-2" />}
 
       {tabs && tabs.length > 0 ? (
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="h-[calc(100%-90px)]">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="relative top-[1px]">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
@@ -87,7 +87,7 @@ export function ConfigurableTable<TData>({
           </TabsList>
 
           {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="flex-1 h-full mt-0 pt-4">
+            <TabsContent key={tab.value} value={tab.value} className="flex-1 flex flex-col mt-0 pt-4 overflow-hidden">
               {renderTableContent(
                 tab.data || defaultData,
                 tab.columns || defaultColumns,
