@@ -8,13 +8,13 @@ import {
   useReactTable,
   type SortingState,
   type ColumnFiltersState,
-} from '@tanstack/react-table'
-import { Button } from '@/components/ui/button'
-import { ChevronUp, ChevronDown, ArrowLeft, ArrowRight } from 'lucide-react'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Folder, ChevronRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useState, type Dispatch, type SetStateAction } from 'react'
+} from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
+import { ChevronUp, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useState, type Dispatch, type SetStateAction } from "react"
+import { TableContextMenu, type TableAction } from "./table-actions"
+import { Trash2 } from "lucide-react"
 
 interface TemplateTableProps<TData> {
   columns: ColumnDef<TData>[]
@@ -26,6 +26,9 @@ interface TemplateTableProps<TData> {
   searchPlaceholder?: string
   globalFilter?: string
   setGlobalFilter: Dispatch<SetStateAction<string>>
+  actions?: TableAction[]
+  markedRows?: Set<TData>
+  isLoading?: boolean
 }
 
 export function TemplateTable<TData>({
@@ -37,6 +40,9 @@ export function TemplateTable<TData>({
   defaultPageSize = 10,
   globalFilter,
   setGlobalFilter,
+  actions = [],
+  markedRows = new Set(),
+  isLoading = false,
 }: TemplateTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -65,11 +71,19 @@ export function TemplateTable<TData>({
         pageSize: defaultPageSize,
       },
     },
-    globalFilterFn: 'includesString',
+    globalFilterFn: "includesString",
   })
 
   return (
-    <div className="flex flex-col flex-1 text-sm rounded-sm overflow-hidden">
+    <div className="flex flex-col flex-1 text-sm rounded-sm overflow-hidden relative">
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-muted-foreground font-medium">Завантаження...</span>
+          </div>
+        </div>
+      )}
       <div className="flex-1 overflow-auto border border-neutral-800 bg-white">
         {/* === ТАБЛИЦЯ === */}
         <table className="w-full border-collapse text-[13px]">
@@ -93,27 +107,46 @@ export function TemplateTable<TData>({
             ))}
           </thead>
 
-          <tbody className=''>
+          <tbody className="">
             {table.getRowModel().rows.map((row) => {
               const isSelected = selectedRow === row.original
+              const isMarked = markedRows.has(row.original)
+
+              // Create a wrapper function to handle row selection on context menu open
+              const handleContextMenuOpen = () => {
+                if (!isSelected) {
+                  onRowSelect?.(row.original)
+                }
+              }
+
               return (
-                <tr
-                  key={row.id}
-                  className={cn(
-                    'border-b border-neutral-800 cursor-pointer hover:bg-white',
-                    isSelected && 'bg-primary-50'
-                  )}
-                  onClick={() => onRowSelect?.(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className={cn('not-last:border-r border-neutral-800 px-2 py-1', isSelected && 'bg-primary-50')}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
+                <TableContextMenu key={row.id} actions={actions}>
+                  <tr
+                    className={cn(
+                      "border-b border-neutral-800 cursor-pointer hover:bg-white",
+                      isSelected && "bg-primary-50",
+                      isMarked && "bg-destructive-100"
+                    )}
+                    onClick={() => onRowSelect?.(row.original)}
+                    onContextMenu={handleContextMenuOpen}
+                  >
+                    {row.getVisibleCells().map((cell, index) => (
+                      <td
+                        key={cell.id}
+                        className={cn(
+                          "not-last:border-r border-neutral-800 px-2 py-1",
+                          isSelected && "bg-primary-50",
+                          isMarked && "bg-destructive-100"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          {index === 0 && isMarked && <Trash2 className="w-4 h-4 text-destructive" />}
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      </td>
+                    ))}
+                  </tr>
+                </TableContextMenu>
               )
             })}
           </tbody>
@@ -122,10 +155,7 @@ export function TemplateTable<TData>({
 
       {/* === СТАТУС-БАР === */}
       <div className="flex items-center justify-between p-2 bg-neutral-200 border-x border-b border-neutral-800">
-        <span className="text-xs text-gray-600">
-          Всього записів: {data.length}
-          {/* {table.getFilteredRowModel().rows.length} з {data.length} записів */}
-        </span>
+        <span className="text-xs text-gray-600">Всього записів: {data.length}</span>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">

@@ -1,38 +1,17 @@
-import { type ReactNode } from "react"
+import { type ReactNode, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, ArrowRight, MoreHorizontal, Search } from "lucide-react"
+import { ArrowLeft, ArrowRight, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu"
-import pencilIcon from "../../assets/icons/pencil.svg"
-import rotateIcon from "../../assets/icons/rotate.svg"
-import excludeIcon from "../../assets/icons/exclude.svg"
-import fileCopyIcon from "../../assets/icons/file-copy.svg"
-import circlePlusIcon from "../../assets/icons/circle-plus.svg"
-import fileExcludeIcon from "../../assets/icons/file-exclude.svg"
 import { useHistory } from "../../providers/history-provider"
-
-const dropdownItems = [
-  { icon: circlePlusIcon, label: "Створити", shortcut: "Ins" },
-  { icon: fileCopyIcon, label: "Скопіювати", shortcut: "F9" },
-  { icon: pencilIcon, label: "Змінити", shortcut: "F2" },
-  { icon: fileExcludeIcon, label: "Відмітити для вилучення / Зняти позначку", shortcut: "Del" },
-  { icon: excludeIcon, label: "Вилучити", shortcut: "Shift+Del" },
-  { icon: rotateIcon, label: "Оновити", shortcut: "F5" },
-]
+import { TableActionsMenu, type TableAction } from "./table-actions"
 
 export interface ToolbarButton {
   type?: "button"
   label: string
   icon?: ReactNode
   onClick?: () => void
-  variant?: "default" | "destructive" | "link" | "primary"
+  variant?: "default" | "destructive" | "link" | "primary" | "secondary" | "outline" | "ghost"
   disabled?: boolean
   className?: string
   size?: "default" | "sm" | "lg" | "icon"
@@ -59,10 +38,28 @@ export interface DynamicToolbarProps {
   search?: ToolbarSearch | boolean
   customControls?: ReactNode
   className?: string
+  actions?: TableAction[]
+  hideActionsMenu?: boolean
 }
 
-export function DynamicToolbar({ title, items, search, customControls, className }: DynamicToolbarProps) {
+export function DynamicToolbar({
+  title,
+  items,
+  search,
+  customControls,
+  className,
+  actions,
+  hideActionsMenu,
+}: DynamicToolbarProps) {
   const { canGoBack, canGoForward, goBack, goForward } = useHistory()
+  const searchConfig = typeof search === "object" ? search : null
+  const [localSearchValue, setLocalSearchValue] = useState(searchConfig?.value || "")
+
+  useEffect(() => {
+    if (searchConfig?.value !== undefined) {
+      setLocalSearchValue(searchConfig.value)
+    }
+  }, [searchConfig?.value])
 
   const renderItem = (item: ToolbarItem, index: number) => {
     if (item.type === "custom") {
@@ -128,37 +125,32 @@ export function DynamicToolbar({ title, items, search, customControls, className
         </div>
 
         <div className="flex items-center gap-1">
-          {search && typeof search === "object" && (
+          {searchConfig && (
             <div className="flex items-center gap-1">
               <Input
-                value={search.value}
-                onChange={(e) => search.onChange(e.target.value)}
-                className={cn("h-7 w-48 text-xs", search.className)}
-                placeholder={search.placeholder || "Пошук..."}
+                value={localSearchValue}
+                onChange={(e) => {
+                  const newValue = e.target.value
+                  setLocalSearchValue(newValue)
+                  if (newValue === "") {
+                    searchConfig.onChange("")
+                  }
+                }}
+                className={cn("h-7 w-48 text-xs", searchConfig.className)}
+                placeholder={searchConfig.placeholder || "Пошук..."}
               />
-              <Button size="icon" className="w-10 h-7 px-0">
+              <Button
+                size="icon"
+                className="w-10 h-7 px-0"
+                onClick={() => searchConfig.onChange(localSearchValue)}
+                disabled={!localSearchValue}
+              >
                 <Search className="w-4 h-4" />
               </Button>
             </div>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button size="icon" className="w-10 h-7 px-0">
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              {dropdownItems.map((item) => (
-                <DropdownMenuItem key={item.label}>
-                  <img width={16} src={item.icon} alt="icon" />
-                  <span className="pr-10">{item.label}</span>
-                  <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {actions && !hideActionsMenu && <TableActionsMenu actions={actions} />}
         </div>
       </div>
     </div>

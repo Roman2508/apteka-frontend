@@ -1,9 +1,19 @@
-import { useState, type Dispatch, type SetStateAction } from "react"
+import { useState, type Dispatch, type SetStateAction, useEffect, useCallback } from "react"
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TemplateTable } from "./template-table"
 import { DynamicToolbar, type DynamicToolbarProps } from "./dynamic-toolbar"
 import { type ColumnDef } from "@tanstack/react-table"
 import { useSearchParams } from "react-router"
+import { type TableAction } from "./table-actions"
+import { EntityFormModal } from "./entity-form-modal"
+
+import pencilIcon from "../../assets/icons/pencil.svg"
+import rotateIcon from "../../assets/icons/rotate.svg"
+import excludeIcon from "../../assets/icons/exclude.svg"
+import fileCopyIcon from "../../assets/icons/file-copy.svg"
+import circlePlusIcon from "../../assets/icons/circle-plus.svg"
+import fileExcludeIcon from "../../assets/icons/file-exclude.svg"
 
 export interface TabConfig<TData> {
   value: string
@@ -23,6 +33,8 @@ export interface ConfigurableTableProps<TData> {
   globalFilter?: string
   setGlobalFilter: Dispatch<SetStateAction<string>>
   defaultTab?: string
+  onAction?: (action: string, row: TData | null, data: TData[]) => void
+  isLoading?: boolean
 }
 
 export function ConfigurableTable<TData>({
@@ -35,13 +47,25 @@ export function ConfigurableTable<TData>({
   globalFilter = "",
   setGlobalFilter,
   defaultTab,
+  onAction,
+  isLoading = false,
 }: ConfigurableTableProps<TData>) {
   const [selectedRow, setSelectedRow] = useState<TData | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
+  const [markedRows, setMarkedRows] = useState<Set<TData>>(new Set())
+  // Local data state to support deletion
+  const [tableData, setTableData] = useState<TData[]>(defaultData)
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<"create" | "edit" | "copy">("create")
+
+  // Update local data when prop data changes
+  useEffect(() => {
+    setTableData(defaultData)
+  }, [defaultData])
 
   const currentTab = searchParams.get("tab") || defaultTab || tabs?.[0]?.value
-
-  // Ensure the current tab is valid, otherwise fallback to the first tab
   const activeTab = tabs?.find((t) => t.value === currentTab) ? currentTab : tabs?.[0]?.value
 
   const handleTabChange = (value: string) => {
@@ -52,10 +76,142 @@ export function ConfigurableTable<TData>({
     })
   }
 
+  // Auto-select first row on load
+  useEffect(() => {
+    if (tableData.length > 0 && !selectedRow) {
+      setSelectedRow(tableData[0])
+    }
+  }, [tableData, selectedRow])
+
+  const handleSave = (newData: TData) => {
+    if (modalMode === "create" || modalMode === "copy") {
+      setTableData((prev) => [...prev, newData])
+    } else if (modalMode === "edit" && selectedRow) {
+      setTableData((prev) => prev.map((row) => (row === selectedRow ? newData : row)))
+      setSelectedRow(newData) // Update selection to new data
+    }
+  }
+
+  const handleAction = useCallback(
+    (actionId: string) => {
+      if (onAction) {
+        onAction(actionId, selectedRow, tableData)
+      }
+
+      switch (actionId) {
+        case "create":
+          setModalMode("create")
+          setModalOpen(true)
+          break
+        case "copy":
+          setModalMode("copy")
+          setModalOpen(true)
+          break
+        case "edit":
+          setModalMode("edit")
+          setModalOpen(true)
+          break
+        case "mark_delete":
+          if (selectedRow) {
+            setMarkedRows((prev) => {
+              const next = new Set(prev)
+              if (next.has(selectedRow)) {
+                next.delete(selectedRow)
+              } else {
+                next.add(selectedRow)
+              }
+              return next
+            })
+          }
+          break
+        case "delete":
+          if (markedRows.size > 0) {
+            setTableData((prev) => prev.filter((row) => !markedRows.has(row)))
+            setMarkedRows(new Set())
+          } else if (selectedRow) {
+            setTableData((prev) => prev.filter((row) => row !== selectedRow))
+            setSelectedRow(null)
+          }
+          break
+        case "refresh":
+          window.location.reload()
+          break
+      }
+    },
+    [selectedRow, tableData, markedRows, onAction, setModalMode, setModalOpen]
+  )
+
+  const defaultActions: TableAction[] = [
+    {
+      id: "create",
+      label: "Створити",
+      icon: <img width={16} src={circlePlusIcon} alt="create" />,
+      shortcut: "Ins",
+      onClick: () => handleAction("create"),
+    },
+    {
+      id: "copy",
+      label: "Скопіювати",
+      icon: <img width={16} src={fileCopyIcon} alt="copy" />,
+      shortcut: "F9",
+      onClick: () => handleAction("copy"),
+      disabled: !selectedRow,
+    },
+    {
+      id: "edit",
+      label: "Змінити",
+      icon: <img width={16} src={pencilIcon} alt="edit" />,
+      shortcut: "F2",
+      onClick: () => handleAction("edit"),
+      disabled: !selectedRow,
+    },
+    {
+      id: "mark_delete",
+      label: "Відмітити для вилучення / Зняти позначку",
+      icon: <img width={16} src={fileExcludeIcon} alt="mark" />,
+      shortcut: "Del",
+      onClick: () => handleAction("mark_delete"),
+      disabled: !selectedRow,
+    },
+    {
+      id: "delete",
+      label: "Вилучити",
+      icon: <img width={16} src={excludeIcon} alt="delete" />,
+      shortcut: "Shift+Del",
+      onClick: () => handleAction("delete"),
+      disabled: !selectedRow && markedRows.size === 0,
+    },
+    {
+      id: "refresh",
+      label: "Оновити",
+      icon: <img width={16} src={rotateIcon} alt="refresh" />,
+      shortcut: "F5",
+      onClick: () => handleAction("refresh"),
+    },
+  ]
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Insert") handleAction("create")
+      if (e.key === "F9") handleAction("copy")
+      if (e.key === "F2") handleAction("edit")
+      if (e.key === "Delete" && !e.shiftKey) handleAction("mark_delete")
+      if (e.key === "Delete" && e.shiftKey) handleAction("delete")
+      if (e.key === "F5") {
+        e.preventDefault()
+        handleAction("refresh")
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [handleAction])
+
   // Helper to render the table content
   const renderTableContent = (data: TData[], columns: ColumnDef<TData>[], toolbarConfig?: DynamicToolbarProps) => (
-    <div className="flex-1 flex flex-col gap-2 overflow-hidden">
-      {toolbarConfig && <DynamicToolbar {...toolbarConfig} />}
+    <div className="flex-1 flex flex-col min-h-0 gap-2">
+      {toolbarConfig && <DynamicToolbar {...toolbarConfig} actions={defaultActions} />}
       <TemplateTable
         columns={columns}
         data={data}
@@ -68,16 +224,19 @@ export function ConfigurableTable<TData>({
         defaultPageSize={20}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        actions={defaultActions}
+        markedRows={markedRows}
+        isLoading={isLoading}
       />
     </div>
   )
 
   return (
     <div className="h-full flex flex-col">
-      {topToolbar && <DynamicToolbar {...topToolbar} className="mb-2" />}
+      {topToolbar && <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} />}
 
       {tabs && tabs.length > 0 ? (
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col overflow-hidden">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col min-h-0">
           <TabsList className="relative top-[1px]">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
@@ -87,9 +246,9 @@ export function ConfigurableTable<TData>({
           </TabsList>
 
           {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="flex-1 flex flex-col mt-0 pt-4 overflow-hidden">
+            <TabsContent key={tab.value} value={tab.value} className="flex-1 flex flex-col min-h-0 mt-0 pt-4">
               {renderTableContent(
-                tab.data || defaultData,
+                tab.data || tableData,
                 tab.columns || defaultColumns,
                 tab.innerToolbar || defaultInnerToolbar
               )}
@@ -97,8 +256,19 @@ export function ConfigurableTable<TData>({
           ))}
         </Tabs>
       ) : (
-        <div className="flex-1 h-full">{renderTableContent(defaultData, defaultColumns, defaultInnerToolbar)}</div>
+        <div className="flex-1 flex flex-col min-h-0">
+          {renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}
+        </div>
       )}
+
+      <EntityFormModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        mode={modalMode}
+        defaultValues={modalMode === "create" ? null : selectedRow}
+        onSave={handleSave}
+        columns={defaultColumns}
+      />
     </div>
   )
 }
