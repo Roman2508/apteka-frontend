@@ -1,21 +1,20 @@
+import { useSearchParams } from "react-router"
+import { type ColumnDef } from "@tanstack/react-table"
 import { useState, type Dispatch, type SetStateAction, useEffect, useCallback } from "react"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TemplateTable } from "./template-table"
-import { DynamicToolbar, type DynamicToolbarProps } from "./dynamic-toolbar"
-import { type ColumnDef } from "@tanstack/react-table"
-import { useSearchParams } from "react-router"
 import { type TableAction } from "./table-actions"
 import { EntityFormModal } from "./entity-form-modal"
-
 import pencilIcon from "../../assets/icons/pencil.svg"
 import rotateIcon from "../../assets/icons/rotate.svg"
 import excludeIcon from "../../assets/icons/exclude.svg"
 import fileCopyIcon from "../../assets/icons/file-copy.svg"
 import circlePlusIcon from "../../assets/icons/circle-plus.svg"
 import fileExcludeIcon from "../../assets/icons/file-exclude.svg"
+import { DynamicToolbar, type DynamicToolbarProps } from "./dynamic-toolbar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export interface TabConfig<TData> {
+export interface TabConfig<TData = any> {
   value: string
   label: string
   data?: TData[]
@@ -28,7 +27,7 @@ export interface ConfigurableTableProps<TData> {
   columns: ColumnDef<TData>[]
   topToolbar?: DynamicToolbarProps
   innerToolbar?: DynamicToolbarProps
-  tabs?: TabConfig<TData>[]
+  tabs?: TabConfig<any>[]
   onRowSelect?: (row: TData) => void
   globalFilter?: string
   setGlobalFilter: Dispatch<SetStateAction<string>>
@@ -50,11 +49,11 @@ export function ConfigurableTable<TData>({
   onAction,
   isLoading = false,
 }: ConfigurableTableProps<TData>) {
-  const [selectedRow, setSelectedRow] = useState<TData | null>(null)
+  const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [markedRows, setMarkedRows] = useState<Set<TData>>(new Set())
+  const [markedRows, setMarkedRows] = useState<Set<any>>(new Set())
   // Local data state to support deletion
-  const [tableData, setTableData] = useState<TData[]>(defaultData)
+  const [tableData, setTableData] = useState<any[]>(defaultData)
 
   // Modal state
   const [modalOpen, setModalOpen] = useState(false)
@@ -76,12 +75,26 @@ export function ConfigurableTable<TData>({
     })
   }
 
-  // Auto-select first row on load
+  // Auto-select first row on load or tab change, or if selection is invalid for current tab
   useEffect(() => {
-    if (tableData.length > 0 && !selectedRow) {
-      setSelectedRow(tableData[0])
+    const currentData = tabs?.find((t) => t.value === activeTab)?.data || tableData
+
+    // If there is data
+    if (currentData.length > 0) {
+      // If no row is selected OR the selected row is not in the current data (e.g. switched tabs)
+      if (!selectedRow || !currentData.includes(selectedRow)) {
+        setSelectedRow(currentData[0])
+      }
+    } else {
+      // If no data, clear selection
+      setSelectedRow(null)
     }
-  }, [tableData, selectedRow])
+  }, [tableData, selectedRow, activeTab, tabs])
+
+  // Reset marked rows when tab changes
+  useEffect(() => {
+    setMarkedRows(new Set())
+  }, [activeTab])
 
   const handleSave = (newData: TData) => {
     if (modalMode === "create" || modalMode === "copy") {
@@ -209,9 +222,11 @@ export function ConfigurableTable<TData>({
   }, [handleAction])
 
   // Helper to render the table content
-  const renderTableContent = (data: TData[], columns: ColumnDef<TData>[], toolbarConfig?: DynamicToolbarProps) => (
+  const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => (
     <div className="flex-1 flex flex-col min-h-0 gap-2">
-      {toolbarConfig && <DynamicToolbar {...toolbarConfig} actions={defaultActions} />}
+      {toolbarConfig && (
+        <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+      )}
       <TemplateTable
         columns={columns}
         data={data}
@@ -233,7 +248,9 @@ export function ConfigurableTable<TData>({
 
   return (
     <div className="h-full flex flex-col">
-      {topToolbar && <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} />}
+      {topToolbar && (
+        <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+      )}
 
       {tabs && tabs.length > 0 ? (
         <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col min-h-0">

@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useEffect } from "react"
+import { type ReactNode, useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, ArrowRight, Search } from "lucide-react"
@@ -40,6 +40,7 @@ export interface DynamicToolbarProps {
   className?: string
   actions?: TableAction[]
   hideActionsMenu?: boolean
+  actionsMenuDisabled?: boolean
 }
 
 export function DynamicToolbar({
@@ -50,10 +51,26 @@ export function DynamicToolbar({
   className,
   actions,
   hideActionsMenu,
+  actionsMenuDisabled,
 }: DynamicToolbarProps) {
   const { canGoBack, canGoForward, goBack, goForward } = useHistory()
   const searchConfig = typeof search === "object" ? search : null
   const [localSearchValue, setLocalSearchValue] = useState(searchConfig?.value || "")
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (!searchConfig) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && (e.key === "F" || e.key === "f")) {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [!!searchConfig])
 
   useEffect(() => {
     if (searchConfig?.value !== undefined) {
@@ -128,6 +145,7 @@ export function DynamicToolbar({
           {searchConfig && (
             <div className="flex items-center gap-1">
               <Input
+                ref={searchInputRef}
                 value={localSearchValue}
                 onChange={(e) => {
                   const newValue = e.target.value
@@ -136,8 +154,13 @@ export function DynamicToolbar({
                     searchConfig.onChange("")
                   }
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    searchConfig.onChange(localSearchValue)
+                  }
+                }}
                 className={cn("h-7 w-48 text-xs", searchConfig.className)}
-                placeholder={searchConfig.placeholder || "Пошук..."}
+                placeholder={searchConfig.placeholder || "Пошук (Shift+F)"}
               />
               <Button
                 size="icon"
@@ -150,7 +173,7 @@ export function DynamicToolbar({
             </div>
           )}
 
-          {actions && !hideActionsMenu && <TableActionsMenu actions={actions} />}
+          {actions && !hideActionsMenu && <TableActionsMenu actions={actions} disabled={actionsMenuDisabled} />}
         </div>
       </div>
     </div>

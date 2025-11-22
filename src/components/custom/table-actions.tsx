@@ -28,9 +28,10 @@ export interface TableAction {
 interface TableActionsMenuProps {
   actions: TableAction[]
   trigger?: ReactNode
+  disabled?: boolean
 }
 
-export function TableActionsMenu({ actions, trigger }: TableActionsMenuProps) {
+export function TableActionsMenu({ actions, trigger, disabled }: TableActionsMenuProps) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -48,9 +49,9 @@ export function TableActionsMenu({ actions, trigger }: TableActionsMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         {trigger || (
-          <Button size="icon" className="w-10 h-7 px-0">
+          <Button size="icon" className="w-10 h-7 px-0" disabled={disabled}>
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         )}

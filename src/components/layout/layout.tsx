@@ -1,6 +1,6 @@
 import { type FC, type PropsWithChildren } from "react"
 
-import { SidebarTree } from "../custom/sidebar-tree"
+import { SidebarTree } from "../custom/main-sidebar/main-sidebar"
 import { DynamicTabs } from "../custom/dynamic-tabs"
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {

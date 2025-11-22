@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router"
 import App from "./App"
 import { HistoryProvider } from "./providers/history-provider"
 import Layout from "./components/layout/layout"
+import ReceivingDocsPage from "./pages/receiving-docs-page"
 
 // Wrapper to provide history context to the app
 const AppLayout = () => {
@@ -24,8 +25,8 @@ export const router = createBrowserRouter([
       },
       // Add more routes here as needed for testing navigation
       {
-        path: "/some-link",
-        element: <div>Page 2</div>,
+        path: "/receiving-docs",
+        element: <ReceivingDocsPage />,
       },
     ],
   },

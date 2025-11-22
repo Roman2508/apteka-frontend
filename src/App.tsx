@@ -123,7 +123,7 @@ function App() {
   }
 
   return (
-    <div className="h-[calc(100vh-65px)] flex flex-col overflow-hidden">
+    <div className="h-[calc(100vh-65px)] flex flex-col">
       <ConfigurableTable
         data={tableData}
         columns={columns}
