@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback } from "react"
 import { Plus } from "lucide-react"
 
 import { Label } from "./components/ui/label"
-import { Checkbox } from "./components/ui/checkbox"
 import { Input } from "./components/ui/input"
-import { data as initialData, columns } from "./components/custom/table-config.tsx"
+import { Checkbox } from "./components/ui/checkbox"
 import { ConfigurableTable } from "./components/custom/configurable-table.tsx"
 import type { DynamicToolbarProps } from "./components/custom/dynamic-toolbar.tsx"
+import { data as initialData, columns } from "./components/custom/table-config.tsx"
 
 function App() {
   const [globalFilter, setGlobalFilter] = useState("")
