@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router"
 import { type ColumnDef } from "@tanstack/react-table"
-import { useState, type Dispatch, type SetStateAction, useEffect, useCallback } from "react"
+import { useState, type Dispatch, type SetStateAction, useEffect, useCallback, type ReactNode } from "react"
 
 import { TemplateTable } from "./template-table"
 import { type TableAction } from "./table-actions"
@@ -22,23 +22,24 @@ export interface TabConfig<TData = any> {
   innerToolbar?: DynamicToolbarProps
 }
 
-export interface ConfigurableTableProps<TData> {
-  data: TData[]
-  columns: ColumnDef<TData>[]
+export interface ConfigurablePageProps<TData> {
+  data?: TData[]
+  columns?: ColumnDef<TData>[]
   topToolbar?: DynamicToolbarProps
   innerToolbar?: DynamicToolbarProps
   tabs?: TabConfig<any>[]
   onRowSelect?: (row: TData) => void
   globalFilter?: string
-  setGlobalFilter: Dispatch<SetStateAction<string>>
+  setGlobalFilter?: Dispatch<SetStateAction<string>>
   defaultTab?: string
   onAction?: (action: string, row: TData | null, data: TData[]) => void
   isLoading?: boolean
+  children?: ReactNode
 }
 
-export function ConfigurableTable<TData>({
-  data: defaultData,
-  columns: defaultColumns,
+export function ConfigurablePage<TData>({
+  data: defaultData = [],
+  columns: defaultColumns = [],
   topToolbar,
   innerToolbar: defaultInnerToolbar,
   tabs,
@@ -48,7 +49,8 @@ export function ConfigurableTable<TData>({
   defaultTab,
   onAction,
   isLoading = false,
-}: ConfigurableTableProps<TData>) {
+  children,
+}: ConfigurablePageProps<TData>) {
   const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const [markedRows, setMarkedRows] = useState<Set<any>>(new Set())
@@ -227,57 +229,30 @@ export function ConfigurableTable<TData>({
       {toolbarConfig && (
         <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
       )}
-      <TemplateTable
-        columns={columns}
-        data={data}
-        selectedRow={selectedRow}
-        onRowSelect={(row) => {
-          setSelectedRow(row)
-          onRowSelect?.(row)
-        }}
-        pageSizeOptions={[20, 50, 100]}
-        defaultPageSize={20}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-        actions={defaultActions}
-        markedRows={markedRows}
-        isLoading={isLoading}
-      />
+
+      {!!data.length && !!columns.length && (
+        <TemplateTable
+          columns={columns}
+          data={data}
+          selectedRow={selectedRow}
+          onRowSelect={(row) => {
+            setSelectedRow(row)
+            onRowSelect?.(row)
+          }}
+          pageSizeOptions={[20, 50, 100]}
+          defaultPageSize={20}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          actions={defaultActions}
+          markedRows={markedRows}
+          isLoading={isLoading}
+        />
+      )}
     </div>
   )
 
   return (
-    <div className="h-full flex flex-col">
-      {topToolbar && (
-        <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} actionsMenuDisabled={!selectedRow} />
-      )}
-
-      {tabs && tabs.length > 0 ? (
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="relative top-[1px]">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value} className="flex-1 flex flex-col min-h-0 mt-0 pt-4">
-              {renderTableContent(
-                tab.data || tableData,
-                tab.columns || defaultColumns,
-                tab.innerToolbar || defaultInnerToolbar
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
-      ) : (
-        <div className="flex-1 flex flex-col min-h-0">
-          {renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}
-        </div>
-      )}
-
+    <>
       <EntityFormModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -286,6 +261,44 @@ export function ConfigurableTable<TData>({
         onSave={handleSave}
         columns={defaultColumns}
       />
-    </div>
+      <div className="h-full flex flex-col">
+        {topToolbar && (
+          <DynamicToolbar
+            {...topToolbar}
+            className="mb-2"
+            actions={defaultActions}
+            actionsMenuDisabled={!selectedRow}
+          />
+        )}
+
+        {children ? (
+          <div className="flex-1 flex flex-col min-h-0 p-4 overflow-auto">{children}</div>
+        ) : tabs && tabs.length > 0 ? (
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="relative top-[1px]">
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {tabs.map((tab) => (
+              <TabsContent key={tab.value} value={tab.value} className="flex-1 flex flex-col min-h-0 mt-0 pt-4">
+                {renderTableContent(
+                  tab.data || tableData,
+                  tab.columns || defaultColumns,
+                  tab.innerToolbar || defaultInnerToolbar
+                )}
+              </TabsContent>
+            ))}
+          </Tabs>
+        ) : (
+          <div className="flex-1 flex flex-col min-h-0">
+            {renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}
+          </div>
+        )}
+      </div>
+    </>
   )
 }

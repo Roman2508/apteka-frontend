@@ -3,6 +3,7 @@ import salesImage from "../../../assets/nav-icons/sales.png"
 import storageImage from "../../../assets/nav-icons/storage.png"
 import reportsImage from "../../../assets/nav-icons/reports.png"
 import userImage from "../../../assets/nav-icons/user.png"
+import adminImage from "../../../assets/nav-icons/admin.png"
 
 export const NAV_ITEMS = [
   {
@@ -20,48 +21,28 @@ export const NAV_ITEMS = [
       {
         title: "Введення замовлень клієнтів",
         links: [
-          {
-            path: "",
-            label: "Закриття замовлень покпців (резервів)",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Завантаження замовлень покупця",
-            isDisabled: true,
-          },
+          { path: "", label: "Закриття замовлень покпців (резервів)", isDisabled: false },
+          { path: "", label: "Завантаження замовлень покупця", isDisabled: true },
         ],
       },
       {
         title: "Продажі та повернення",
         links: [
           { path: "", label: "Реалізація товарів/послуг", isDisabled: false },
-          {
-            path: "",
-            label: "Провернення товарів від клієнта",
-            isDisabled: true,
-          },
+          { path: "", label: "Провернення товарів від клієнта", isDisabled: true },
         ],
       },
       {
         title: "Соціальні проекти",
         links: [
-          {
-            path: "",
-            label: "Звіти про продажі по реімбурсації",
-            isDisabled: false,
-          },
+          { path: "", label: "Звіти про продажі по реімбурсації", isDisabled: false },
           { path: "", label: "Соціальні проекти", isDisabled: true },
         ],
       },
       {
         title: "eHealth",
         links: [
-          {
-            path: "",
-            label: "Встановлення цін реімбурсації",
-            isDisabled: false,
-          },
+          { path: "", label: "Встановлення цін реімбурсації", isDisabled: false },
           { path: "", label: "Препарати бази eHealth", isDisabled: true },
           { path: "", label: "Медичні програми eHealth", isDisabled: true },
           { path: "", label: "Торгові назви eHealth", isDisabled: true },
@@ -84,16 +65,8 @@ export const NAV_ITEMS = [
           { path: "", label: "Касова зміна", isDisabled: false },
           { path: "", label: "Зміни користувача", isDisabled: false },
           { path: "", label: "Пошук по штрихкоду", isDisabled: false },
-          {
-            path: "",
-            label: "Пробиття чеків з офлайн продажу",
-            isDisabled: true,
-          },
-          {
-            path: "",
-            label: "Лімітна сума для створення авансу",
-            isDisabled: false,
-          },
+          { path: "", label: "Пробиття чеків з офлайн продажу", isDisabled: true },
+          { path: "", label: "Лімітна сума для створення авансу", isDisabled: false },
           { path: "", label: "Процент аванса", isDisabled: true },
         ],
       },
@@ -107,32 +80,16 @@ export const NAV_ITEMS = [
       {
         title: "Закупівлі",
         links: [
-          {
-            path: "",
-            label: "Надходження товарів і послуг",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Повернення товарів постачальнику",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Замовлення по поверненню товарів постачальнику",
-            isDisabled: false,
-          },
+          { path: "", label: "Надходження товарів і послуг", isDisabled: false },
+          { path: "", label: "Повернення товарів постачальнику", isDisabled: false },
+          { path: "", label: "Замовлення по поверненню товарів постачальнику", isDisabled: false },
         ],
       },
       {
         title: "Замовлення",
         links: [
           { path: "", label: "Внутрішні замовлення", isDisabled: false },
-          {
-            path: "",
-            label: "Закриття внутрішніх замовлень",
-            isDisabled: false,
-          },
+          { path: "", label: "Закриття внутрішніх замовлень", isDisabled: false },
           { path: "", label: "Управління асортиментом", isDisabled: false },
         ],
       },
@@ -147,11 +104,7 @@ export const NAV_ITEMS = [
         title: "Склад",
         links: [
           { path: "", label: "Завантажити файли з ФТР", isDisabled: false },
-          {
-            path: "",
-            label: "Препарати з коротким терміном придатності",
-            isDisabled: false,
-          },
+          { path: "", label: "Препарати з коротким терміном придатності", isDisabled: false },
           { path: "", label: "Переоцінки", isDisabled: false },
         ],
       },
@@ -172,21 +125,9 @@ export const NAV_ITEMS = [
           { path: "", label: "Оприбуткування товарів", isDisabled: false },
           { path: "", label: "Списання товарів", isDisabled: false },
           { path: "", label: "Пересортування товарів", isDisabled: false },
-          {
-            path: "",
-            label: "Наказ на проведення інвентаризації",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Налаштування списання господарських товарів",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Показати проблемні документи",
-            isDisabled: false,
-          },
+          { path: "", label: "Наказ на проведення інвентаризації", isDisabled: false },
+          { path: "", label: "Налаштування списання господарських товарів", isDisabled: false },
+          { path: "", label: "Показати проблемні документи", isDisabled: false },
         ],
       },
       {
@@ -200,32 +141,16 @@ export const NAV_ITEMS = [
       {
         title: "Інше",
         links: [
-          {
-            path: "",
-            label: "Правила групування складських комірок при друку",
-            isDisabled: false,
-          },
+          { path: "", label: "Правила групування складських комірок при друку", isDisabled: false },
           { path: "", label: "Складські комірки", isDisabled: false },
         ],
       },
       {
         title: "Сервіс",
         links: [
-          {
-            path: "",
-            label: "АРМ повернення товарів з коротким терміном (на аптеку)",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Друк етикеток складських комірок",
-            isDisabled: false,
-          },
-          {
-            path: "",
-            label: "Розміщення номенклатури по коміркам",
-            isDisabled: false,
-          },
+          { path: "", label: "АРМ повернення товарів з коротким терміном (на аптеку)", isDisabled: false },
+          { path: "", label: "Друк етикеток складських комірок", isDisabled: false },
+          { path: "", label: "Розміщення номенклатури по коміркам", isDisabled: false },
           { path: "", label: "АРМ Інвентаризації", isDisabled: false },
           { path: "", label: "Друк етикеток і цінників", isDisabled: false },
         ],
@@ -255,11 +180,7 @@ export const NAV_ITEMS = [
       {
         title: "Мотивація",
         links: [
-          {
-            path: "",
-            label: "Плановий робочий день працівника",
-            isDisabled: false,
-          },
+          { path: "", label: "Плановий робочий день працівника", isDisabled: false },
           { path: "", label: "Штатний розклад", isDisabled: false },
         ],
       },
@@ -278,11 +199,22 @@ export const NAV_ITEMS = [
           { path: "", label: "Зведений звіт по мотивації", isDisabled: false },
           { path: "", label: "Службове вилучення під звіт", isDisabled: false },
           { path: "", label: "Видача авансових коштів", isDisabled: false },
-          {
-            path: "",
-            label: "Службове внесення розмінної монети",
-            isDisabled: false,
-          },
+          { path: "", label: "Службове внесення розмінної монети", isDisabled: false },
+        ],
+      },
+    ],
+  },
+  {
+    id: 6,
+    label: "Адміністрування",
+    icon: adminImage,
+    items: [
+      {
+        title: "Адміністрування",
+        links: [
+          { path: "/medical-products", label: "Номенклатура", isDisabled: false },
+          { path: "", label: "Користувачі", isDisabled: false },
+          { path: "", label: "Створити накладну", isDisabled: false },
         ],
       },
     ],

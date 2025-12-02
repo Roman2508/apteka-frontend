@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react"
 import { useState, useEffect, useCallback } from "react"
 
 import editIcon from "../assets/icons/pencil.svg"
@@ -5,24 +6,19 @@ import refreshIcon from "../assets/icons/rotate.svg"
 import createIcon from "../assets/icons/file-copy.svg"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import { data as initialData, columns } from "../components/custom/table-config.tsx"
 import {
-  inboundDocumentsTableColumns,
-  data as inboundDocumentsTableData,
-} from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
-import {
-  expectedDeliveriesTableColumns,
-  data as expectedDeliveriesTableData,
-} from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
+  data as initialData,
+  columns,
+} from "../components/common/medical-products-page/medical-products-table-config.tsx"
+import { useNavigate } from "react-router"
 
-const ReceivingDocsPage = () => {
+const MedicalProductsPage = () => {
+  const navigate = useNavigate()
+
   const [globalFilter, setGlobalFilter] = useState("")
   const [tableData, setTableData] = useState(initialData)
   const [isLoading, setIsLoading] = useState(false)
-  const [filters, setFilters] = useState({
-    status: "",
-    date: "",
-  })
+  const [filters, setFilters] = useState({ status: "", date: "" })
 
   // Mock backend request
   const mockFetchData = useCallback(async (currentFilters: typeof filters) => {
@@ -59,7 +55,7 @@ const ReceivingDocsPage = () => {
   }
 
   const topToolbarConfig: DynamicToolbarProps = {
-    title: "Документи прийому",
+    title: "Управління номенклатурою",
     hideActionsMenu: true,
   }
 
@@ -71,6 +67,24 @@ const ReceivingDocsPage = () => {
     },
     items: [
       [
+        {
+          label: "Створити",
+          icon: <Plus className="w-3.5 h-3.5" />,
+          onClick: () => navigate("/medical-products/create"),
+          variant: "primary",
+        },
+        {
+          label: "Завантажити з файлу",
+          icon: null,
+          onClick: () => alert("Записати clicked"),
+          variant: "default",
+        },
+        {
+          label: "Експорт",
+          icon: null,
+          onClick: () => alert("Записати clicked"),
+          variant: "default",
+        },
         {
           label: "",
           icon: <img src={createIcon} className="w-4 h-4" />,
@@ -89,45 +103,15 @@ const ReceivingDocsPage = () => {
           onClick: () => alert("Створити clicked"),
           variant: "default",
         },
-        {
-          label: "Товар в аптеці",
-          //   icon: null,
-          onClick: () => alert("Записати clicked"),
-          variant: "default",
-        },
-        {
-          label: "Розміщення",
-          //   icon: null,
-          onClick: () => alert("Записати clicked"),
-          variant: "default",
-        },
       ],
     ],
   }
-
-  const tabs = [
-    {
-      value: "inbound-documents",
-      label: "Документи надходження",
-      data: inboundDocumentsTableData,
-      columns: inboundDocumentsTableColumns,
-      //   innerToolbar: { items: [], hideActionsMenu: true },
-    },
-    {
-      value: "expected-deliveries",
-      label: "Розпорядження",
-      data: expectedDeliveriesTableData,
-      columns: expectedDeliveriesTableColumns,
-    },
-    { value: "quality-issues", label: "Акти невідповідності", data: tableData, columns: columns },
-  ]
 
   return (
     <div className="h-[calc(100vh-65px)] flex flex-col">
       <ConfigurablePage
         data={tableData}
         columns={columns}
-        tabs={tabs}
         topToolbar={topToolbarConfig}
         innerToolbar={innerToolbarConfig}
         globalFilter={globalFilter}
@@ -138,4 +122,4 @@ const ReceivingDocsPage = () => {
   )
 }
 
-export default ReceivingDocsPage
+export default MedicalProductsPage

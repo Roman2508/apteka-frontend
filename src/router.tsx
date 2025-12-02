@@ -3,6 +3,9 @@ import App from "./App"
 import { HistoryProvider } from "./providers/history-provider"
 import Layout from "./components/layout/layout"
 import ReceivingDocsPage from "./pages/receiving-docs-page"
+import { TemplateModalExamples } from "./components/custom/template-modal/template-modal-examples"
+import MedicalProductsPage from "./pages/medical-products-page"
+import FullMedicalProductPage from "./pages/full-medical-product-page"
 
 // Wrapper to provide history context to the app
 const AppLayout = () => {
@@ -27,6 +30,18 @@ export const router = createBrowserRouter([
       {
         path: "/receiving-docs",
         element: <ReceivingDocsPage />,
+      },
+      {
+        path: "/template-modal-examples",
+        element: <TemplateModalExamples />,
+      },
+      {
+        path: "/medical-products",
+        element: <MedicalProductsPage />,
+      },
+      {
+        path: "/medical-products/:id",
+        element: <FullMedicalProductPage />,
       },
     ],
   },

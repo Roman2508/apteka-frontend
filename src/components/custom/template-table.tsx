@@ -25,7 +25,7 @@ interface TemplateTableProps<TData> {
   defaultPageSize?: number
   searchPlaceholder?: string
   globalFilter?: string
-  setGlobalFilter: Dispatch<SetStateAction<string>>
+  setGlobalFilter?: Dispatch<SetStateAction<string>>
   actions?: TableAction[]
   markedRows?: Set<TData>
   isLoading?: boolean
