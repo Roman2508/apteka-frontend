@@ -22,6 +22,8 @@ export type QualityIssue = {
 
 */
 
+// Середа 14:30
+
 export const data: QualityIssue[] = [
   {
     id: "1",

@@ -1,9 +1,9 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { TemplateModal } from "./template-modal"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { ModalContentItem } from "./template-modal.types"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { TemplateModal } from './template-modal'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { ModalContentItem } from './template-modal.types'
 // import { ConfigurableTable } from "./configurable-table" // Assuming this exists based on context
 // import { columns, data } from "./table-config" // Reuse existing table config for demo
 
@@ -13,18 +13,18 @@ export function TemplateModalExamples() {
   // --- Example 1: Simple Single Column ---
   const simpleContent: ModalContentItem[] = [
     {
-      type: "row",
+      type: 'row',
       items: [
-        { type: "input", label: "Name", content: <Input placeholder="Enter name" /> },
-        { type: "input", label: "Email", content: <Input placeholder="Enter email" /> },
+        { type: 'input', label: 'Name', content: <Input placeholder="Enter name" /> },
+        { type: 'input', label: 'Email', content: <Input placeholder="Enter email" /> },
       ],
     },
     {
-      type: "row",
+      type: 'row',
       cols: 2,
       items: [
-        { type: "input", label: "City", content: <Input placeholder="City" /> },
-        { type: "input", label: "Zip", content: <Input placeholder="Zip" /> },
+        { type: 'input', label: 'City', content: <Input placeholder="City" /> },
+        { type: 'input', label: 'Zip', content: <Input placeholder="Zip" /> },
       ],
     },
   ]
@@ -32,30 +32,30 @@ export function TemplateModalExamples() {
   // --- Example 2: Two Column Layout ---
   const twoColumnContent: ModalContentItem[] = [
     {
-      type: "section",
-      title: "Personal Info",
+      type: 'section',
+      title: 'Personal Info',
       rows: [
         {
-          type: "row",
-          items: [{ type: "input", label: "First Name", content: <Input /> }],
+          type: 'row',
+          items: [{ type: 'input', label: 'First Name', content: <Input /> }],
         },
         {
-          type: "row",
-          items: [{ type: "input", label: "Last Name", content: <Input /> }],
+          type: 'row',
+          items: [{ type: 'input', label: 'Last Name', content: <Input /> }],
         },
       ],
     },
     {
-      type: "section",
-      title: "Account Details",
+      type: 'section',
+      title: 'Account Details',
       rows: [
         {
-          type: "row",
-          items: [{ type: "input", label: "Username", content: <Input /> }],
+          type: 'row',
+          items: [{ type: 'input', label: 'Username', content: <Input /> }],
         },
         {
-          type: "row",
-          items: [{ type: "input", label: "Role", content: <Input /> }],
+          type: 'row',
+          items: [{ type: 'input', label: 'Role', content: <Input /> }],
         },
       ],
     },
@@ -64,10 +64,10 @@ export function TemplateModalExamples() {
   // --- Example 3: Complex with Tabs and Table ---
   const complexContent: ModalContentItem[] = [
     {
-      type: "row",
+      type: 'row',
       items: [
         {
-          type: "tabs",
+          type: 'tabs',
           content: (
             <Tabs defaultValue="details" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
@@ -108,20 +108,20 @@ export function TemplateModalExamples() {
       <h2 className="text-2xl font-bold mb-4">Universal Modal Examples</h2>
 
       <div className="flex gap-4 flex-wrap">
-        <Button onClick={() => setOpenModal("simple")}>Open Simple Modal</Button>
-        <Button onClick={() => setOpenModal("two-column")}>Open Two-Column Modal</Button>
-        <Button onClick={() => setOpenModal("complex")}>Open Complex Modal</Button>
+        <Button onClick={() => setOpenModal('simple')}>Open Simple Modal</Button>
+        <Button onClick={() => setOpenModal('two-column')}>Open Two-Column Modal</Button>
+        <Button onClick={() => setOpenModal('complex')}>Open Complex Modal</Button>
       </div>
 
       {/* Simple Modal */}
       <TemplateModal
-        isOpen={openModal === "simple"}
+        isOpen={openModal === 'simple'}
         onClose={() => setOpenModal(null)}
         title="Edit User Profile"
         content={simpleContent}
         footer={{
           onConfirm: () => {
-            alert("Saved!")
+            alert('Saved!')
             setOpenModal(null)
           },
         }}
@@ -129,7 +129,7 @@ export function TemplateModalExamples() {
 
       {/* Two Column Modal */}
       <TemplateModal
-        isOpen={openModal === "two-column"}
+        isOpen={openModal === 'two-column'}
         onClose={() => setOpenModal(null)}
         title="User Settings"
         layout="two-column"
@@ -139,14 +139,14 @@ export function TemplateModalExamples() {
 
       {/* Complex Modal */}
       <TemplateModal
-        isOpen={openModal === "complex"}
+        isOpen={openModal === 'complex'}
         onClose={() => setOpenModal(null)}
         title="Order Details"
         maxWidth="sm:max-w-[700px]"
         content={complexContent}
         footer={{
-          confirmText: "Update Order",
-          cancelText: "Close",
+          confirmText: 'Update Order',
+          cancelText: 'Close',
         }}
       />
     </div>

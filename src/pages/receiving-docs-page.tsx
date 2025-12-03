@@ -1,33 +1,65 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from 'react'
 
-import editIcon from "../assets/icons/pencil.svg"
-import refreshIcon from "../assets/icons/rotate.svg"
-import createIcon from "../assets/icons/file-copy.svg"
-import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
-import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import { data as initialData, columns } from "../components/custom/table-config.tsx"
+import editIcon from '../assets/icons/pencil.svg'
+import refreshIcon from '../assets/icons/rotate.svg'
+import createIcon from '../assets/icons/file-copy.svg'
+import { ConfigurablePage } from '../components/custom/configurable-page.tsx'
+import type { DynamicToolbarProps } from '../components/custom/dynamic-toolbar.tsx'
+import { data as initialData, columns } from '../components/custom/table-config.tsx'
 import {
   inboundDocumentsTableColumns,
   data as inboundDocumentsTableData,
-} from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
+} from '../components/common/receiving-docs-page/inbound-documents-table-config.tsx'
 import {
   expectedDeliveriesTableColumns,
   data as expectedDeliveriesTableData,
-} from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
+} from '@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx'
+import { TemplateModal } from '@/components/custom/template-modal/template-modal.tsx'
+import type { ModalContentItem } from '@/components/custom/template-modal/template-modal.types.ts'
 
 const ReceivingDocsPage = () => {
-  const [globalFilter, setGlobalFilter] = useState("")
+  const [globalFilter, setGlobalFilter] = useState('')
   const [tableData, setTableData] = useState(initialData)
   const [isLoading, setIsLoading] = useState(false)
-  const [filters, setFilters] = useState({
-    status: "",
-    date: "",
+  const [filters, setFilters] = useState({ status: '', date: '' })
+  const [openModal, setOpenModal] = useState<'scan' | 'check' | null>(null)
+  const [scanModalData, setScanModalData] = useState<{ counterparty: Number; docNumber: string }>({
+    counterparty: 0,
+    docNumber: '',
   })
+
+  // --- Modal content ---
+  const modalContent: ModalContentItem[] = [
+    {
+      type: 'row',
+      items: [
+        {
+          type: 'custom',
+          label: '',
+          content: (
+            <div className="border border-dashed px-4 py-10 text-center text-[13px] bg-neutral-100">
+              Очікується сканування накладної...
+            </div>
+          ),
+        },
+        // { type: 'input', label: 'Name', content: <Input placeholder="Enter name" /> },
+        // { type: 'input', label: 'Email', content: <Input placeholder="Enter email" /> },
+      ],
+    },
+    {
+      type: 'row',
+      cols: 2,
+      items: [
+        // { type: 'input', label: 'City', content: <Input placeholder="City" /> },
+        // { type: 'input', label: 'Zip', content: <Input placeholder="Zip" /> },
+      ],
+    },
+  ]
 
   // Mock backend request
   const mockFetchData = useCallback(async (currentFilters: typeof filters) => {
     setIsLoading(true)
-    console.log("Fetching data with filters:", currentFilters)
+    console.log('Fetching data with filters:', currentFilters)
 
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -59,7 +91,7 @@ const ReceivingDocsPage = () => {
   }
 
   const topToolbarConfig: DynamicToolbarProps = {
-    title: "Документи прийому",
+    title: 'Документи прийому',
     hideActionsMenu: true,
   }
 
@@ -67,74 +99,129 @@ const ReceivingDocsPage = () => {
     search: {
       value: globalFilter,
       onChange: setGlobalFilter,
-      placeholder: "Пошук (Shift+F)",
+      placeholder: 'Пошук (Shift+F)',
     },
     items: [
       [
         {
-          label: "",
+          label: '',
           icon: <img src={createIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
-          variant: "default",
+          onClick: () => alert('Створити clicked'),
+          variant: 'default',
         },
         {
-          label: "",
+          label: '',
           icon: <img src={editIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
-          variant: "default",
+          onClick: () => alert('Створити clicked'),
+          variant: 'default',
         },
         {
-          label: "",
+          label: '',
           icon: <img src={refreshIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
-          variant: "default",
+          onClick: () => alert('Створити clicked'),
+          variant: 'default',
         },
         {
-          label: "Товар в аптеці",
+          label: 'Товар в аптеці',
           //   icon: null,
-          onClick: () => alert("Записати clicked"),
-          variant: "default",
+          onClick: () => alert('Записати clicked'),
+          variant: 'default',
         },
         {
-          label: "Розміщення",
+          label: 'Розміщення',
           //   icon: null,
-          onClick: () => alert("Записати clicked"),
-          variant: "default",
+          onClick: () => alert('Записати clicked'),
+          variant: 'default',
         },
       ],
     ],
   }
 
+  const receivingDocsInnerToolbarConfig: DynamicToolbarProps = {
+    search: {
+      value: globalFilter,
+      onChange: setGlobalFilter,
+      placeholder: 'Пошук (Shift+F)',
+    },
+    items: [
+      [
+        {
+          label: 'Сканувати накладну',
+          onClick: () => setOpenModal('scan'),
+          variant: 'primary',
+        },
+        {
+          label: 'Перевірити документ',
+          onClick: () => alert('Записати clicked'),
+          variant: 'default',
+        },
+      ],
+    ],
+    // hideActionsMenu: true,
+  }
+
   const tabs = [
     {
-      value: "inbound-documents",
-      label: "Документи надходження",
+      value: 'inbound-documents',
+      label: 'Документи надходження',
       data: inboundDocumentsTableData,
       columns: inboundDocumentsTableColumns,
-      //   innerToolbar: { items: [], hideActionsMenu: true },
     },
     {
-      value: "expected-deliveries",
-      label: "Розпорядження",
+      value: 'expected-deliveries',
+      label: 'Розпорядження',
       data: expectedDeliveriesTableData,
       columns: expectedDeliveriesTableColumns,
+      innerToolbar: receivingDocsInnerToolbarConfig,
     },
-    { value: "quality-issues", label: "Акти невідповідності", data: tableData, columns: columns },
+    { value: 'quality-issues', label: 'Акти невідповідності', data: tableData, columns: columns },
   ]
 
+  const handleScan = () => {
+    alert('Сканування накладної...')
+  }
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault()
+      if (e.key === 'Enter') {
+        handleScan()
+        return
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleScan])
+
   return (
-    <div className="h-[calc(100vh-65px)] flex flex-col">
-      <ConfigurablePage
-        data={tableData}
-        columns={columns}
-        tabs={tabs}
-        topToolbar={topToolbarConfig}
-        innerToolbar={innerToolbarConfig}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-        isLoading={isLoading}
+    <>
+      <TemplateModal
+        isOpen={openModal === 'scan'}
+        onClose={() => setOpenModal(null)}
+        title="Сканування накладної"
+        content={modalContent}
+        footer={{
+          onConfirm: () => {
+            alert('Saved!')
+            setOpenModal(null)
+          },
+        }}
       />
-    </div>
+
+      <div className="h-[calc(100vh-65px)] flex flex-col">
+        <ConfigurablePage
+          data={tableData}
+          columns={columns}
+          tabs={tabs}
+          topToolbar={topToolbarConfig}
+          innerToolbar={innerToolbarConfig}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          isLoading={isLoading}
+        />
+      </div>
+    </>
   )
 }
 

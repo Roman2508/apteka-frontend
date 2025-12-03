@@ -1,19 +1,15 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import type { ModalContentItem, ModalItem, ModalRow, TemplateModalFooter } from "./template-modal.types"
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import type { ModalContentItem, ModalItem, ModalRow, TemplateModalFooter } from './template-modal.types'
 
 export interface TemplateModalProps {
-  // Core props
   title: string
   isOpen: boolean
   onClose: () => void
-  // Content configuration
   content: ModalContentItem[]
-  layout?: "single" | "two-column" // default: "single"
-  // Footer configuration
+  layout?: 'single' | 'two-column'
   footer?: TemplateModalFooter
-  // Styling
   maxWidth?: string
   className?: string
 }
@@ -25,17 +21,17 @@ export function TemplateModal({
   isOpen,
   onClose,
   content,
-  layout = "single",
+  layout = 'single',
   footer,
-  maxWidth = "sm:max-w-[600px]",
+  maxWidth = 'sm:max-w-[600px]',
   className,
 }: TemplateModalProps) {
   // Helper to render a single item
   const renderItem = (item: ModalItem, index: number) => {
-    const spanClass = item.span ? `col-span-${item.span}` : "col-span-1"
+    const spanClass = item.span ? `col-span-${item.span}` : 'col-span-1'
 
     return (
-      <div key={index} className={cn("flex flex-col gap-1.5", spanClass, item.className)}>
+      <div key={index} className={cn('flex flex-col gap-1.5', spanClass, item.className)}>
         {item.label && (
           <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             {item.label}
@@ -56,7 +52,7 @@ export function TemplateModal({
     return (
       <div
         key={index}
-        className={cn("grid gap-4", `grid-cols-${cols}`, row.className)}
+        className={cn('grid gap-4', `grid-cols-${cols}`, row.className)}
         style={{ gridTemplateColumns: row.cols ? `repeat(${row.cols}, minmax(0, 1fr))` : undefined }}
       >
         {row.items.map((item, idx) => renderItem(item, idx))}
@@ -66,7 +62,7 @@ export function TemplateModal({
 
   // Helper to render content based on layout
   const renderContent = () => {
-    if (layout === "two-column") {
+    if (layout === 'two-column') {
       // In two-column mode, we expect the content array to ideally have 2 sections or groups of rows
       // If it's just a flat list of rows, we might need to split them or just render them in the left column?
       // Let's assume for two-column layout, the user provides content that makes sense to split.
@@ -80,9 +76,9 @@ export function TemplateModal({
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {content.map((item, index) => {
-            if (item.type === "section") {
+            if (item.type === 'section') {
               return (
-                <div key={index} className={cn("flex flex-col gap-4", item.className)}>
+                <div key={index} className={cn('flex flex-col gap-4', item.className)}>
                   {item.title && <h4 className="font-semibold text-foreground">{item.title}</h4>}
                   {item.rows.map((row, rIdx) => renderRow(row, rIdx))}
                 </div>
@@ -99,9 +95,9 @@ export function TemplateModal({
     return (
       <div className="flex flex-col gap-4">
         {content.map((item, index) => {
-          if (item.type === "section") {
+          if (item.type === 'section') {
             return (
-              <div key={index} className={cn("flex flex-col gap-4", item.className)}>
+              <div key={index} className={cn('flex flex-col gap-4', item.className)}>
                 {item.title && <h4 className="font-semibold text-foreground">{item.title}</h4>}
                 {item.rows.map((row, rIdx) => renderRow(row, rIdx))}
               </div>
@@ -116,7 +112,7 @@ export function TemplateModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={cn("max-h-[90vh] flex flex-col p-0 gap-0", maxWidth, className)}>
+      <DialogContent className={cn('max-h-[90vh] flex flex-col p-0 gap-0', maxWidth, className)}>
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -129,11 +125,11 @@ export function TemplateModal({
 
             <div className="flex gap-2 ml-auto">
               {!footer?.hideCancel && (
-                <Button onClick={footer?.onCancel || onClose}>{footer?.cancelText || "Скасувати"}</Button>
+                <Button onClick={footer?.onCancel || onClose}>{footer?.cancelText || 'Скасувати'}</Button>
               )}
               {!footer?.hideConfirm && (
                 <Button onClick={footer?.onConfirm} variant="primary">
-                  {footer?.confirmText || "Зберегти"}
+                  {footer?.confirmText || 'Зберегти'}
                 </Button>
               )}
             </div>
