@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -27,6 +27,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.67.0",
+    "react-qr-barcode-scanner": "^2.1.19",
     "react-router": "^7.9.6",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.4.0",

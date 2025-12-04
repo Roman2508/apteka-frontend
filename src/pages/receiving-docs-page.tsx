@@ -1,3 +1,4 @@
+import { io } from 'socket.io-client'
 import { useState, useEffect, useCallback } from 'react'
 
 import editIcon from '../assets/icons/pencil.svg'
@@ -16,6 +17,7 @@ import {
 } from '@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx'
 import { TemplateModal } from '@/components/custom/template-modal/template-modal.tsx'
 import type { ModalContentItem } from '@/components/custom/template-modal/template-modal.types.ts'
+import { useScanner } from '@/hooks/useScanner.ts'
 
 const ReceivingDocsPage = () => {
   const [globalFilter, setGlobalFilter] = useState('')
@@ -176,6 +178,28 @@ const ReceivingDocsPage = () => {
     },
     { value: 'quality-issues', label: 'Акти невідповідності', data: tableData, columns: columns },
   ]
+
+  const SOCKET_URL = 'http://localhost:3000'
+
+  const documentId = '12345' // Приклад documentId для підключення сокета
+
+  const socket = io(SOCKET_URL, { query: { documentId } })
+
+  const { scannedCode, reset } = useScanner({
+    minLength: 13, // Для EAN-13
+    socket, // Передаємо сокет
+    socketEventName: 'mobile-scan', // Назва події з бекенду (наприклад, 'mobile-scan')
+    onError: (err) => console.error(err),
+  })
+
+  // Твоя логіка після скану
+  useEffect(() => {
+    if (scannedCode) {
+      console.log('Обробка скану:', scannedCode)
+      // Тут: scanItem(documentId, scannedCode)
+      // Після обробки: reset() для очищення
+    }
+  }, [scannedCode, documentId])
 
   const handleScan = () => {
     alert('Сканування накладної...')
