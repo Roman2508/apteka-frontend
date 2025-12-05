@@ -1,57 +1,45 @@
-import { Plus } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
+import { Plus, Upload, Trash2 } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
+import { toast } from "sonner"
 
 import editIcon from "../assets/icons/pencil.svg"
 import refreshIcon from "../assets/icons/rotate.svg"
 import createIcon from "../assets/icons/file-copy.svg"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import {
-  data as initialData,
-  columns,
-} from "../components/common/medical-products-page/medical-products-table-config.tsx"
+import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
 import { useNavigate } from "react-router"
+import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/use-medical-products"
 
 const MedicalProductsPage = () => {
   const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [globalFilter, setGlobalFilter] = useState("")
-  const [tableData, setTableData] = useState(initialData)
-  const [isLoading, setIsLoading] = useState(false)
-  const [filters, setFilters] = useState({ status: "", date: "" })
+  const { data: products, isLoading, refetch } = useProducts()
+  const deleteProduct = useDeleteProduct()
+  const importExcel = useImportExcel()
 
-  // Mock backend request
-  const mockFetchData = useCallback(async (currentFilters: typeof filters) => {
-    setIsLoading(true)
-    console.log("Fetching data with filters:", currentFilters)
+  const tableData = products || []
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+  const handleExcelUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-    // Simulate filtering
-    let filtered = [...initialData]
-    if (currentFilters.status) {
-      filtered = filtered.filter((item) =>
-        (item as any).status?.toLowerCase().includes(currentFilters.status.toLowerCase())
-      )
-    }
-    // Add more mock filtering logic here if needed
+    importExcel.mutate(file, {
+      onSuccess: (result) => {
+        toast.success(`Імпорт завершено: ${result.success} успішно, ${result.failed} помилок`)
+        if (result.errors.length > 0) {
+          console.error("Import errors:", result.errors)
+        }
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || "Помилка імпорту")
+      },
+    })
 
-    setTableData(filtered)
-    setIsLoading(false)
-  }, [])
-
-  // Initial load and filter change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      mockFetchData(filters)
-    }, 300) // Debounce 300ms
-
-    return () => clearTimeout(timer)
-  }, [filters, mockFetchData])
-
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
+    // Reset input
+    event.target.value = ""
   }
 
   const topToolbarConfig: DynamicToolbarProps = {
@@ -75,32 +63,21 @@ const MedicalProductsPage = () => {
         },
         {
           label: "Завантажити з файлу",
-          icon: null,
-          onClick: () => alert("Записати clicked"),
+          icon: <Upload className="w-3.5 h-3.5" />,
+          onClick: () => fileInputRef.current?.click(),
           variant: "default",
+          disabled: importExcel.isPending,
         },
         {
           label: "Експорт",
           icon: null,
-          onClick: () => alert("Записати clicked"),
-          variant: "default",
-        },
-        {
-          label: "",
-          icon: <img src={createIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
-          variant: "default",
-        },
-        {
-          label: "",
-          icon: <img src={editIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
+          onClick: () => toast.info("Функція експорту в розробці"),
           variant: "default",
         },
         {
           label: "",
           icon: <img src={refreshIcon} className="w-4 h-4" />,
-          onClick: () => alert("Створити clicked"),
+          onClick: () => refetch(),
           variant: "default",
         },
       ],
@@ -109,6 +86,7 @@ const MedicalProductsPage = () => {
 
   return (
     <div className="h-[calc(100vh-65px)] flex flex-col">
+      <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={handleExcelUpload} className="hidden" />
       <ConfigurablePage
         data={tableData}
         columns={columns}
@@ -116,7 +94,7 @@ const MedicalProductsPage = () => {
         innerToolbar={innerToolbarConfig}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
-        isLoading={isLoading}
+        isLoading={isLoading || importExcel.isPending}
       />
     </div>
   )

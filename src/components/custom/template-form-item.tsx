@@ -11,6 +11,7 @@ interface TemplateFormItemProps {
   label: string
   description?: string
   type: "text" | "number" | "password" | "checkbox" | "select" | "file"
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>
   options?: { label: string; value: string }[]
   disabled?: boolean

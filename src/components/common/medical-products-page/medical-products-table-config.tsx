@@ -1,42 +1,7 @@
-import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronRight, Folder } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { type ColumnDef } from "@tanstack/react-table"
+import { type MedicalProduct } from "@/hooks/use-medical-products"
 
-export type Counterparty = {
-  id: string
-  name: string
-  brand_name: string
-  form: string
-  dosage_value: string
-  dosage_unit: string
-  inn: string
-  subpackages_per_package: string
-  subpackage_type: string
-  shelf_life_value: string
-  shelf_life_unit: string
-  active: boolean
-  isGroup?: boolean
-}
-
-export const data: Counterparty[] = [
-  {
-    id: "00000001",
-    name: "Нурофен",
-    brand_name: "Нурофен",
-    form: "Підкожна",
-    dosage_value: "5",
-    dosage_unit: "мг",
-    inn: "12345678",
-    subpackages_per_package: "1",
-    subpackage_type: "Пластинки",
-    shelf_life_value: "1",
-    shelf_life_unit: "мг",
-    active: true,
-  },
-]
-
-export const columns: ColumnDef<Counterparty>[] = [
+export const columns: ColumnDef<MedicalProduct>[] = [
   {
     accessorKey: "id",
     header: "Код",

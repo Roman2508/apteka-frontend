@@ -58,9 +58,7 @@ export function HistoryProvider({ children }: { children: ReactNode }) {
     if (canGoForward) navigate(1)
   }
 
-  return (
-    <HistoryContext.Provider value={{ canGoBack, canGoForward, goBack, goForward }}>{children}</HistoryContext.Provider>
-  )
+  return <HistoryContext.Provider value={{ canGoBack, canGoForward, goBack, goForward }}>{children}</HistoryContext.Provider>
 }
 
 export function useHistory() {

@@ -153,7 +153,7 @@ export function ConfigurablePage<TData>({
           break
       }
     },
-    [selectedRow, tableData, markedRows, onAction, setModalMode, setModalOpen]
+    [selectedRow, tableData, markedRows, onAction, setModalMode, setModalOpen],
   )
 
   const defaultActions: TableAction[] = [
@@ -226,11 +226,9 @@ export function ConfigurablePage<TData>({
   // Helper to render the table content
   const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => (
     <div className="flex-1 flex flex-col min-h-0 gap-2">
-      {toolbarConfig && (
-        <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
-      )}
+      {toolbarConfig && <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />}
 
-      {!!data.length && !!columns.length && (
+      {!!columns.length && (
         <TemplateTable
           columns={columns}
           data={data}
@@ -263,12 +261,7 @@ export function ConfigurablePage<TData>({
       />
       <div className="h-full flex flex-col">
         {topToolbar && (
-          <DynamicToolbar
-            {...topToolbar}
-            className="mb-2"
-            actions={defaultActions}
-            actionsMenuDisabled={!selectedRow}
-          />
+          <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} actionsMenuDisabled={!selectedRow} />
         )}
 
         {children ? (
@@ -288,15 +281,13 @@ export function ConfigurablePage<TData>({
                 {renderTableContent(
                   tab.data || tableData,
                   tab.columns || defaultColumns,
-                  tab.innerToolbar || defaultInnerToolbar
+                  tab.innerToolbar || defaultInnerToolbar,
                 )}
               </TabsContent>
             ))}
           </Tabs>
         ) : (
-          <div className="flex-1 flex flex-col min-h-0">
-            {renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}
-          </div>
+          <div className="flex-1 flex flex-col min-h-0">{renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}</div>
         )}
       </div>
     </>
