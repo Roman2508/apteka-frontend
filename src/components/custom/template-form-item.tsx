@@ -10,7 +10,7 @@ interface TemplateFormItemProps {
   name: string
   label: string
   description?: string
-  type: "text" | "number" | "checkbox" | "select" | "file"
+  type: "text" | "number" | "password" | "checkbox" | "select" | "file"
   control: Control<any>
   options?: { label: string; value: string }[]
   disabled?: boolean
@@ -161,7 +161,7 @@ export function TemplateFormItem({
                 return (
                   <Input
                     id={name}
-                    type="text"
+                    type={type}
                     placeholder={placeholder}
                     disabled={disabled}
                     readOnly={readOnly}

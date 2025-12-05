@@ -7,6 +7,7 @@ import { TemplateModalExamples } from './components/custom/template-modal/templa
 import MedicalProductsPage from './pages/medical-products-page'
 import FullMedicalProductPage from './pages/full-medical-product-page'
 import MobileScanPage from './pages/mobile-scan-page'
+import LoginPage from './pages/login-page'
 
 // Wrapper to provide history context to the app
 const AppLayout = () => {
@@ -49,5 +50,9 @@ export const router = createBrowserRouter([
         element: <FullMedicalProductPage />,
       },
     ],
+  },
+  {
+    path: '/auth',
+    element: <LoginPage />,
   },
 ])

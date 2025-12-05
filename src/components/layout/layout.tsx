@@ -1,7 +1,7 @@
 import { type FC, type PropsWithChildren } from "react"
 
 import { SidebarTree } from "../custom/main-sidebar/main-sidebar"
-import { DynamicTabs } from "../custom/dynamic-tabs"
+import { Header } from "./header"
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   return (
@@ -14,7 +14,7 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* === ВКЛАДКИ === */}
           <div className="flex flex-col">
-            <DynamicTabs />
+            <Header />
           </div>
 
           {/* === КОНТЕНТ === */}
