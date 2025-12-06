@@ -15,6 +15,7 @@ export interface ToolbarButton {
   disabled?: boolean
   className?: string
   size?: "default" | "sm" | "lg" | "icon"
+  title?: string
 }
 
 export interface ToolbarCustomItem {
@@ -96,6 +97,7 @@ export function DynamicToolbar({
         onClick={btn.onClick}
         disabled={btn.disabled}
         className={btn.className}
+        title={btn.title}
       >
         {btn.icon && <span className={cn("w-4 h-4", btn.label ? "mr-1" : "")}>{btn.icon}</span>}
         {btn.label}

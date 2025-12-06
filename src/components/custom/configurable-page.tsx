@@ -22,6 +22,10 @@ export interface TabConfig<TData = any> {
   innerToolbar?: DynamicToolbarProps
 }
 
+export type ActionId = "create" | "copy" | "edit" | "mark_delete" | "delete" | "refresh"
+
+export type CustomActionHandler<TData> = (row: TData | null, data: TData[]) => boolean | void
+
 export interface ConfigurablePageProps<TData> {
   data?: TData[]
   columns?: ColumnDef<TData>[]
@@ -33,6 +37,8 @@ export interface ConfigurablePageProps<TData> {
   setGlobalFilter?: Dispatch<SetStateAction<string>>
   defaultTab?: string
   onAction?: (action: string, row: TData | null, data: TData[]) => void
+  /** Custom action handlers that override default behavior. Return false to prevent default action. */
+  customActions?: Partial<Record<ActionId, CustomActionHandler<TData>>>
   isLoading?: boolean
   children?: ReactNode
 }
@@ -48,6 +54,7 @@ export function ConfigurablePage<TData>({
   setGlobalFilter,
   defaultTab,
   onAction,
+  customActions,
   isLoading = false,
   children,
 }: ConfigurablePageProps<TData>) {
@@ -109,10 +116,20 @@ export function ConfigurablePage<TData>({
 
   const handleAction = useCallback(
     (actionId: string) => {
+      // Check for custom action handler first
+      const customHandler = customActions?.[actionId as ActionId]
+      if (customHandler) {
+        const result = customHandler(selectedRow, tableData)
+        // If custom handler returns false, skip default behavior
+        if (result === false) return
+      }
+
+      // Call onAction callback for backwards compatibility
       if (onAction) {
         onAction(actionId, selectedRow, tableData)
       }
 
+      // Default behavior
       switch (actionId) {
         case "create":
           setModalMode("create")
@@ -153,7 +170,7 @@ export function ConfigurablePage<TData>({
           break
       }
     },
-    [selectedRow, tableData, markedRows, onAction, setModalMode, setModalOpen],
+    [selectedRow, tableData, markedRows, onAction, customActions],
   )
 
   const defaultActions: TableAction[] = [

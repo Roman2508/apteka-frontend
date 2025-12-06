@@ -1,23 +1,25 @@
-import { Plus, Upload, Trash2 } from "lucide-react"
-import { useState, useEffect, useCallback, useRef } from "react"
+import { Plus, Upload, HelpCircle } from "lucide-react"
+import { useState, useRef } from "react"
 import { toast } from "sonner"
+import { useNavigate } from "react-router"
+import axios from "axios"
 
-import editIcon from "../assets/icons/pencil.svg"
 import refreshIcon from "../assets/icons/rotate.svg"
-import createIcon from "../assets/icons/file-copy.svg"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
-import { useNavigate } from "react-router"
 import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/use-medical-products"
+import { ImportHelpModal } from "../components/modals/import-help-modal"
 
 const MedicalProductsPage = () => {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [globalFilter, setGlobalFilter] = useState("")
+  const [isHelpModalOpen, setIsHelpModalOpen] = useState(false)
+
   const { data: products, isLoading, refetch } = useProducts()
-  const deleteProduct = useDeleteProduct()
+  // const deleteProduct = useDeleteProduct() // Unused
   const importExcel = useImportExcel()
 
   const tableData = products || []
@@ -40,6 +42,37 @@ const MedicalProductsPage = () => {
 
     // Reset input
     event.target.value = ""
+  }
+
+  const handleExport = async () => {
+    try {
+      const response = await axios.get("http://localhost:7777/medical-products/export-excel", {
+        responseType: "blob",
+      })
+
+      const url = window.URL.createObjectURL(new Blob([response.data]))
+      const link = document.createElement("a")
+      link.href = url
+
+      // Get filename from header or generate default
+      const contentDisposition = response.headers["content-disposition"]
+      let filename = `medical_products_${new Date().toISOString().split("T")[0]}.xlsx`
+
+      if (contentDisposition) {
+        const matches = contentDisposition.match(/filename="?([^"]+)"?/)
+        if (matches && matches[1]) {
+          filename = matches[1]
+        }
+      }
+
+      link.setAttribute("download", filename)
+      document.body.appendChild(link)
+      link.click()
+      link.parentNode?.removeChild(link)
+    } catch (error) {
+      console.error("Export error:", error)
+      toast.error("Помилка експорту файлу")
+    }
   }
 
   const topToolbarConfig: DynamicToolbarProps = {
@@ -69,9 +102,17 @@ const MedicalProductsPage = () => {
           disabled: importExcel.isPending,
         },
         {
+          label: "",
+          icon: <HelpCircle className="w-4 h-4 text-muted-foreground" />,
+          onClick: () => setIsHelpModalOpen(true),
+          variant: "default",
+          className: "px-2",
+          title: "Інструкція з імпорту",
+        },
+        {
           label: "Експорт",
           icon: null,
-          onClick: () => toast.info("Функція експорту в розробці"),
+          onClick: handleExport,
           variant: "default",
         },
         {
@@ -82,6 +123,30 @@ const MedicalProductsPage = () => {
         },
       ],
     ],
+  }
+
+  // Custom actions that override default modal behavior
+  const customActions = {
+    create: () => {
+      navigate("/medical-products/create")
+      return false // Prevent default modal
+    },
+    copy: (row: any) => {
+      if (row) {
+        navigate("/medical-products/create", { state: { copyFrom: row } })
+      }
+      return false
+    },
+    edit: (row: any) => {
+      if (row?.id) {
+        navigate(`/medical-products/${row.id}`)
+      }
+      return false
+    },
+    refresh: () => {
+      refetch()
+      return false // Prevent default page reload
+    },
   }
 
   return (
@@ -95,7 +160,9 @@ const MedicalProductsPage = () => {
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
         isLoading={isLoading || importExcel.isPending}
+        customActions={customActions}
       />
+      <ImportHelpModal open={isHelpModalOpen} onOpenChange={setIsHelpModalOpen} />
     </div>
   )
 }

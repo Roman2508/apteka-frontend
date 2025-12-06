@@ -3,7 +3,7 @@ import { Plus, X, ArrowLeft } from "lucide-react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { useState, useEffect, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useParams, useNavigate } from "react-router"
+import { useParams, useNavigate, useLocation } from "react-router"
 import { toast } from "sonner"
 
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
@@ -38,8 +38,12 @@ type ProductFormValues = z.infer<typeof productSchema>
 const FullMedicalProductPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const isCreateMode = id === "create"
   const productId = isCreateMode ? null : Number(id)
+
+  // Get copyFrom data if navigating from copy action
+  const copyFromProduct = location.state?.copyFrom
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -61,9 +65,33 @@ const FullMedicalProductPage = () => {
     },
   })
 
-  // Load product data
+  // Load product data for edit mode or copy mode
   useEffect(() => {
-    if (product && !isCreateMode) {
+    // For copy mode - load data from navigation state
+    if (isCreateMode && copyFromProduct) {
+      form.reset({
+        name: copyFromProduct.name || "",
+        brand_name: copyFromProduct.brand_name || "",
+        form: copyFromProduct.form || "tablet",
+        dosage_value: copyFromProduct.dosage_value ? Number(copyFromProduct.dosage_value) : undefined,
+        dosage_unit: copyFromProduct.dosage_unit || "",
+        barcode: copyFromProduct.barcode || "",
+        inn: copyFromProduct.inn || "",
+        atc_code: copyFromProduct.atc_code || "",
+        registration_number: copyFromProduct.registration_number || "",
+        in_national_list: copyFromProduct.in_national_list || false,
+        in_reimbursed_program: copyFromProduct.in_reimbursed_program || false,
+        subpackage_type: copyFromProduct.subpackage_type || "",
+        subpackages_per_package: copyFromProduct.subpackages_per_package || undefined,
+        shelf_life_value: copyFromProduct.shelf_life_value || undefined,
+        shelf_life_unit: copyFromProduct.shelf_life_unit || "",
+        retail_price: Number(copyFromProduct.retail_price) || 0,
+        vat_rate: copyFromProduct.vat_rate || 7,
+        manufacturerId: copyFromProduct.manufacturerId || undefined,
+      })
+    }
+    // For edit mode - load data from API
+    else if (product && !isCreateMode) {
       form.reset({
         name: product.name,
         brand_name: product.brand_name || "",
@@ -85,7 +113,7 @@ const FullMedicalProductPage = () => {
         manufacturerId: product.manufacturerId || undefined,
       })
     }
-  }, [product, form, isCreateMode])
+  }, [product, form, isCreateMode, copyFromProduct])
 
   const onSubmit: SubmitHandler<ProductFormValues> = async (data) => {
     try {
