@@ -65,10 +65,10 @@ export function TemplateFormItem({
                 return (
                   <Checkbox
                     id={name}
-                    checked={value ?? false}
                     onChange={onChange}
+                    checked={value ?? false}
+                    // className={inputClassName}
                     disabled={disabled || readOnly}
-                    className={inputClassName}
                     {...field}
                   />
                 )
