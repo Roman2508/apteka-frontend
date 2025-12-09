@@ -4,14 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useCreateUser, useUpdateUser, type User } from "@/hooks/use-users"
 import { usePharmacyChains } from "@/hooks/use-pharmacy-chains"
+import { useCreateUser, useUpdateUser, type User } from "@/hooks/use-users"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 const userSchema = z
   .object({
@@ -197,7 +197,7 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
               <Checkbox
                 id="is_active"
                 checked={form.watch("is_active")}
-                onCheckedChange={(checked) => form.setValue("is_active", !!checked)}
+                onChange={(e) => form.setValue("is_active", e.target.checked)}
               />
               <Label htmlFor="is_active">Активний</Label>
             </div>
