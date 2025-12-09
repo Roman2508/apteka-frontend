@@ -41,6 +41,7 @@ export interface ConfigurablePageProps<TData> {
   customActions?: Partial<Record<ActionId, CustomActionHandler<TData>>>
   isLoading?: boolean
   children?: ReactNode
+  onEntitySave?: (data: TData, mode: "create" | "edit" | "copy") => Promise<void> | void
 }
 
 export function ConfigurablePage<TData>({
@@ -57,6 +58,7 @@ export function ConfigurablePage<TData>({
   customActions,
   isLoading = false,
   children,
+  onEntitySave,
 }: ConfigurablePageProps<TData>) {
   const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -105,7 +107,11 @@ export function ConfigurablePage<TData>({
     setMarkedRows(new Set())
   }, [activeTab])
 
-  const handleSave = (newData: TData) => {
+  const handleSave = async (newData: TData) => {
+    if (onEntitySave) {
+      await onEntitySave(newData, modalMode)
+    }
+
     if (modalMode === "create" || modalMode === "copy") {
       setTableData((prev) => [...prev, newData])
     } else if (modalMode === "edit" && selectedRow) {

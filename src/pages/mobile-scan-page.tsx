@@ -63,7 +63,8 @@ const MobileScanPage = () => {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p className="font-bold">Увага!</p>
             <p>Відкрийте на PC сторінку:</p>
-            <p className="font-mono text-sm">/receiving-docs?tab=expected-deliveries</p>
+            <p className="font-mono text-sm">{"Документи прийому -> Розпорядження"}</p>
+            {/* <p className="font-mono text-sm">/receiving-docs?tab=expected-deliveries</p> */}
           </div>
         )}
 
@@ -84,8 +85,8 @@ const MobileScanPage = () => {
                 handleScan(result)
               }
             }}
-            onError={(error) => {
-              if (error.name === "NotAllowedError") {
+            onError={(error: any) => {
+              if (error?.name === "NotAllowedError") {
                 setScanError("Доступ до камери заборонено")
               }
             }}

@@ -116,6 +116,7 @@ export const NAV_ITEMS = [
           { path: "", label: "Видатковий ордер на товари", isDisabled: false },
           { path: "", label: "Прибутковий ордер на товари", isDisabled: false },
           { path: "", label: "Ремонт основних засобів", isDisabled: false },
+          { path: "/mobile-scan", label: "Сканування накладних", isDisabled: false },
         ],
       },
       {
@@ -215,6 +216,7 @@ export const NAV_ITEMS = [
           { path: "/medical-products", label: "Номенклатура", isDisabled: false },
           { path: "", label: "Користувачі", isDisabled: false },
           { path: "", label: "Створити накладну", isDisabled: false },
+          { path: "/counterparties", label: "Контрагенти", isDisabled: false },
         ],
       },
     ],

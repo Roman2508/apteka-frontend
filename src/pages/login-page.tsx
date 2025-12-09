@@ -104,7 +104,7 @@ const LoginPage = () => {
 
             {login.error && (
                 <div className="text-red-500 text-sm text-center">
-                    {(login.error as any).response?.data?.message || 'Failed to login'}
+                    {(login.error as any).response?.data?.message || 'Не вдалось увійти'}
                 </div>
             )}
             </form>

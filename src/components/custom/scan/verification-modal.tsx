@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface VerificationModalProps {
   isOpen: boolean
@@ -14,6 +15,16 @@ interface VerificationModalProps {
   }
   onSave: () => void
 }
+
+/* 
+QR CODE DATA EXAMPLE:
+{
+  "code": "00006894",
+  "counterpartyId": "ТОВ БаДМ",
+  "count": 4,
+  "totalPrice": 1355
+}
+*/
 
 export const VerificationModal = ({ isOpen, onClose, data, onSave }: VerificationModalProps) => {
   if (!isOpen) return null

@@ -8,6 +8,7 @@ import MedicalProductsPage from "./pages/medical-products-page"
 import FullMedicalProductPage from "./pages/full-medical-product-page"
 import MobileScanPage from "./pages/mobile-scan-page"
 import LoginPage from "./pages/login-page"
+import CounterpartiesPage from "./pages/counterparties-page"
 import { RequireAuth } from "./components/layout/require-auth"
 
 const AppLayout = () => {
@@ -37,10 +38,6 @@ export const router = createBrowserRouter([
             element: <ReceivingDocsPage />,
           },
           {
-            path: "/mobile-scan",
-            element: <MobileScanPage />,
-          },
-          {
             path: "/template-modal-examples",
             element: <TemplateModalExamples />,
           },
@@ -52,10 +49,25 @@ export const router = createBrowserRouter([
             path: "/medical-products/:id",
             element: <FullMedicalProductPage />,
           },
+          {
+            path: "/counterparties",
+            element: <CounterpartiesPage />,
+          },
         ],
       },
     ],
   },
+
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        path: "/mobile-scan",
+        element: <MobileScanPage />,
+      },
+    ]
+  },
+  
   {
     path: "/auth",
     element: <LoginPage />,

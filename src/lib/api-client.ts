@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth.store';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:7777',
+  withCredentials: true
 });
 
 api.interceptors.request.use((config) => {
