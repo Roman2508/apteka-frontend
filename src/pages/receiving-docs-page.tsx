@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "react-router"
+import { useState, useEffect, useCallback } from "react"
 
 import editIcon from "../assets/icons/pencil.svg"
+import { useScanStore } from "../stores/scan.store"
 import refreshIcon from "../assets/icons/rotate.svg"
 import createIcon from "../assets/icons/file-copy.svg"
+import { UsbScanModal } from "../components/custom/scan/usb-scan-modal"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
+import { VerificationModal } from "../components/custom/scan/verification-modal"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { data as initialData, columns } from "../components/custom/table-config.tsx"
 import {
@@ -15,9 +18,6 @@ import {
   expectedDeliveriesTableColumns,
   data as expectedDeliveriesTableData,
 } from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
-import { useScanStore } from "../stores/scan.store"
-import { VerificationModal } from "../components/custom/scan/verification-modal"
-import { UsbScanModal } from "../components/custom/scan/usb-scan-modal"
 
 const ReceivingDocsPage = () => {
   const [globalFilter, setGlobalFilter] = useState("")

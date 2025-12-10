@@ -174,10 +174,11 @@ body {
   * {
     @apply border-border;
     scrollbar-width: thin;
+    font-family: "Inter", sans-serif;
   }
 
   body {
     /* @apply text-base; */
-    @apply max-h-screen overflow-hidden font-custom;
+    @apply max-h-screen overflow-hidden;
   }
 }

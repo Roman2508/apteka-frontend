@@ -30,7 +30,7 @@ const columns: ColumnDef<Counterparty>[] = [
           { label: "Фізична особа", value: "individual" },
         ],
       },
-    } ,
+    },
   },
   {
     accessorKey: "edrpou_code",
@@ -64,7 +64,7 @@ const CounterpartiesPage = () => {
   const createMutation = useCreateCounterparty()
   const updateMutation = useUpdateCounterparty()
   const deleteMutation = useDeleteCounterparty()
-  
+
   const pageRef = useRef<ConfigurablePageRef>(null)
 
   const handleEntitySave = async (data: Counterparty, mode: "create" | "edit" | "copy") => {
