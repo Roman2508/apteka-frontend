@@ -1,39 +1,67 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useState, useEffect } from "react"
-import { type ColumnDef } from "@tanstack/react-table"
+"use client"
 
-interface EntityFormModalProps<TData> {
+import { useEffect } from "react"
+import { useForm, type DefaultValues, type SubmitHandler, type FieldValues } from "react-hook-form"
+
+import { Button } from "@/components/ui/button"
+import { TemplateFormItem, type Option, type FormItemType } from "./template-form-item"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+
+export interface FormFieldConfig {
+  name: string
+  label: string
+  type: FormItemType
+  options?: Option[]
+  onSearch?: (query: string) => Promise<Option[]>
+  placeholder?: string
+  description?: string
+  required?: boolean
+  disabled?: boolean
+}
+
+export interface EntityFormModalProps<TData> {
   isOpen: boolean
   onClose: () => void
   mode: "create" | "edit" | "copy"
   defaultValues?: TData | null
-  onSave: (data: TData) => void
-  columns: ColumnDef<TData>[]
+  onSave: (data: TData) => Promise<void> | void
+  fields: FormFieldConfig[]
+  isLoading?: boolean
 }
 
-export function EntityFormModal<TData>({
+export function EntityFormModal<TData extends FieldValues>({
   isOpen,
   onClose,
   mode,
   defaultValues,
   onSave,
-  columns,
+  fields,
+  isLoading = false,
 }: EntityFormModalProps<TData>) {
-  const [formData, setFormData] = useState<Partial<TData>>({})
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<TData>({
+    defaultValues: (defaultValues || {}) as DefaultValues<TData>,
+  })
 
+  // Reset form when dialog opens or defaults change
   useEffect(() => {
-    if (isOpen && defaultValues) {
-      setFormData({ ...defaultValues })
-    } else if (isOpen) {
-      setFormData({})
+    if (isOpen) {
+      if (mode === "create") {
+        reset({} as DefaultValues<TData>)
+      } else {
+        // For copy, we might want to clear ID if it exists in data, allowing backend to generate new one
+        // But usually standard is just filling inputs
+        reset((defaultValues || {}) as DefaultValues<TData>)
+      }
     }
-  }, [isOpen, defaultValues])
+  }, [isOpen, defaultValues, mode, reset])
 
-  const handleSave = () => {
-    onSave(formData as TData)
+  const onSubmit: SubmitHandler<TData> = async (data) => {
+    await onSave(data)
     onClose()
   }
 
@@ -48,38 +76,39 @@ export function EntityFormModal<TData>({
     }
   }
 
-  // Filter out columns that shouldn't be edited (like actions, or complex cells if not handled)
-  // For this demo, we'll just take columns with an accessorKey
-  const editableColumns = columns.filter((col) => "accessorKey" in col)
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {editableColumns.map((col: any) => (
-            <div key={col.accessorKey} className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor={col.accessorKey} className="text-right">
-                {col.header as string}
-              </Label>
-              
-              <Input
-                id={col.accessorKey}
-                value={(formData as any)[col.accessorKey] || ""}
-                onChange={(e) => setFormData({ ...formData, [col.accessorKey]: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="pt-4">
+          {fields.map((field) => (
+            <TemplateFormItem
+              key={field.name}
+              control={control}
+              name={field.name}
+              label={field.label}
+              type={field.type}
+              options={field.options}
+              onSearch={field.onSearch}
+              placeholder={field.placeholder}
+              description={field.description}
+              disabled={field.disabled || isLoading || isSubmitting}
+            />
           ))}
-        </div>
-        <DialogFooter>
-          <Button onClick={onClose}>
-            Скасувати
-          </Button>
-          <Button onClick={handleSave}>Зберегти</Button>
-        </DialogFooter>
+
+          <DialogFooter className="sticky bottom-0 bg-background pt-2">
+            <Button type="button" onClick={onClose} disabled={isSubmitting}>
+              Скасувати
+            </Button>
+
+            <Button type="submit" disabled={isSubmitting} variant="primary">
+              {isSubmitting ? "Збереження..." : "Зберегти"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

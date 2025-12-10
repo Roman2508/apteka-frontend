@@ -1,10 +1,10 @@
 import { useSearchParams } from "react-router"
 import { type ColumnDef } from "@tanstack/react-table"
-import { useState, type Dispatch, type SetStateAction, useEffect, useCallback, type ReactNode } from "react"
+import { useState, type Dispatch, type SetStateAction, useEffect, useCallback, type ReactNode, useMemo, forwardRef, useImperativeHandle, type ForwardedRef } from "react"
 
 import { TemplateTable } from "./template-table"
 import { type TableAction } from "./table-actions"
-import { EntityFormModal } from "./entity-form-modal"
+import { EntityFormModal, type FormFieldConfig } from "./entity-form-modal"
 import pencilIcon from "../../assets/icons/pencil.svg"
 import rotateIcon from "../../assets/icons/rotate.svg"
 import excludeIcon from "../../assets/icons/exclude.svg"
@@ -19,6 +19,7 @@ export interface TabConfig<TData = any> {
   label: string
   data?: TData[]
   columns?: ColumnDef<TData>[]
+  formFields?: FormFieldConfig[]
   innerToolbar?: DynamicToolbarProps
 }
 
@@ -29,6 +30,7 @@ export type CustomActionHandler<TData> = (row: TData | null, data: TData[]) => b
 export interface ConfigurablePageProps<TData> {
   data?: TData[]
   columns?: ColumnDef<TData>[]
+  formFields?: FormFieldConfig[]
   topToolbar?: DynamicToolbarProps
   innerToolbar?: DynamicToolbarProps
   tabs?: TabConfig<any>[]
@@ -44,22 +46,53 @@ export interface ConfigurablePageProps<TData> {
   onEntitySave?: (data: TData, mode: "create" | "edit" | "copy") => Promise<void> | void
 }
 
-export function ConfigurablePage<TData>({
-  data: defaultData = [],
-  columns: defaultColumns = [],
-  topToolbar,
-  innerToolbar: defaultInnerToolbar,
-  tabs,
-  onRowSelect,
-  globalFilter = "",
-  setGlobalFilter,
-  defaultTab,
-  onAction,
-  customActions,
-  isLoading = false,
-  children,
-  onEntitySave,
-}: ConfigurablePageProps<TData>) {
+export interface ConfigurablePageRef {
+  openModal: (mode: "create" | "edit" | "copy") => void
+}
+
+function deriveFormFields(columns: ColumnDef<any>[]): FormFieldConfig[] {
+  return columns
+    .filter((col) => !!(col as any).accessorKey)
+    .map((col) => {
+      const accessorKey = (col as any).accessorKey
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const meta = (col as any).meta as any
+      const header = (col as any).header
+
+      return {
+        name: accessorKey,
+        label: typeof header === "string" ? header : accessorKey,
+        type: meta?.form?.type || "text",
+        options: meta?.form?.options,
+        onSearch: meta?.form?.onSearch,
+        placeholder: meta?.form?.placeholder,
+        description: meta?.form?.description,
+        required: meta?.form?.required,
+        disabled: meta?.form?.disabled,
+      }
+    })
+}
+
+function ConfigurablePageInternal<TData>(
+  {
+    data: defaultData = [],
+    columns: defaultColumns = [],
+    formFields,
+    topToolbar,
+    innerToolbar: defaultInnerToolbar,
+    tabs,
+    onRowSelect,
+    globalFilter = "",
+    setGlobalFilter,
+    defaultTab,
+    onAction,
+    customActions,
+    isLoading = false,
+    children,
+    onEntitySave,
+  }: ConfigurablePageProps<TData>,
+  ref: ForwardedRef<ConfigurablePageRef>,
+) {
   const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const [markedRows, setMarkedRows] = useState<Set<any>>(new Set())
@@ -70,13 +103,21 @@ export function ConfigurablePage<TData>({
   const [modalOpen, setModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<"create" | "edit" | "copy">("create")
 
+  useImperativeHandle(ref, () => ({
+    openModal: (mode) => {
+      setModalMode(mode)
+      setModalOpen(true)
+    },
+  }))
+
   // Update local data when prop data changes
   useEffect(() => {
     setTableData(defaultData)
   }, [defaultData])
 
   const currentTab = searchParams.get("tab") || defaultTab || tabs?.[0]?.value
-  const activeTab = tabs?.find((t) => t.value === currentTab) ? currentTab : tabs?.[0]?.value
+  const activeTabConfig = tabs?.find((t) => t.value === currentTab)
+  const activeTab = activeTabConfig ? currentTab : tabs?.[0]?.value
 
   const handleTabChange = (value: string) => {
     setSearchParams((prev) => {
@@ -86,9 +127,17 @@ export function ConfigurablePage<TData>({
     })
   }
 
+  // Derive form fields based on current context
+  const activeFormFields = useMemo(() => {
+    if (activeTabConfig?.formFields) return activeTabConfig.formFields
+    if (activeTabConfig?.columns) return deriveFormFields(activeTabConfig.columns)
+    if (formFields) return formFields
+    return deriveFormFields(defaultColumns)
+  }, [activeTabConfig, formFields, defaultColumns])
+
   // Auto-select first row on load or tab change, or if selection is invalid for current tab
   useEffect(() => {
-    const currentData = tabs?.find((t) => t.value === activeTab)?.data || tableData
+    const currentData = activeTabConfig?.data || tableData
 
     // If there is data
     if (currentData.length > 0) {
@@ -100,7 +149,7 @@ export function ConfigurablePage<TData>({
       // If no data, clear selection
       setSelectedRow(null)
     }
-  }, [tableData, selectedRow, activeTab, tabs])
+  }, [tableData, selectedRow, activeTabConfig, tabs])
 
   // Reset marked rows when tab changes
   useEffect(() => {
@@ -280,7 +329,8 @@ export function ConfigurablePage<TData>({
         mode={modalMode}
         defaultValues={modalMode === "create" ? null : selectedRow}
         onSave={handleSave}
-        columns={defaultColumns}
+        fields={activeFormFields}
+        isLoading={isLoading}
       />
       <div className="h-full flex flex-col">
         {topToolbar && (
@@ -316,3 +366,9 @@ export function ConfigurablePage<TData>({
     </>
   )
 }
+
+// Fixed forwardRef type assertion
+export const ConfigurablePage = forwardRef(ConfigurablePageInternal) as <TData>(
+  props: ConfigurablePageProps<TData> & { ref?: ForwardedRef<ConfigurablePageRef> }
+) => ReturnType<typeof ConfigurablePageInternal>
+

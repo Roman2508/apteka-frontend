@@ -172,12 +172,12 @@ body {
 
 @layer base {
   * {
-    @apply border-border font-[MS_Sans_Serif];
+    @apply border-border;
     scrollbar-width: thin;
   }
 
   body {
     /* @apply text-base; */
-    @apply max-h-screen overflow-hidden;
+    @apply max-h-screen overflow-hidden font-custom;
   }
 }

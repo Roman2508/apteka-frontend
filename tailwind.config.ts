@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        custom: ['"MS Sans Serif"', 'Tahoma', 'Arial', 'sans-serif'],
+        custom: ['Tahoma', 'Arial', 'sans-serif'],
       },
       fontSize: {
         sm: '13px',

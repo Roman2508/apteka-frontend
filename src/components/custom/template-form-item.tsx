@@ -1,19 +1,31 @@
 import { type Control, Controller } from "react-hook-form"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Button } from "@/components/ui/button"
+import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+export type FormItemType = "text" | "number" | "password" | "checkbox" | "select" | "async-select" | "file"
+
+export interface Option {
+  label: string
+  value: string | number
+}
 
 interface TemplateFormItemProps {
   name: string
   label: string
   description?: string
-  type: "text" | "number" | "password" | "checkbox" | "select" | "file"
+  type: FormItemType
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>
-  options?: { label: string; value: string }[]
+  options?: Option[]
+  onSearch?: (query: string) => Promise<Option[]>
   disabled?: boolean
   readOnly?: boolean
   placeholder?: string
@@ -27,17 +39,23 @@ export function TemplateFormItem({
   description,
   type,
   control,
-  options,
+  options: initialOptions = [],
+  onSearch,
   disabled,
   readOnly,
   placeholder,
   className,
   inputClassName = "w-[300px]",
 }: TemplateFormItemProps) {
-  // State for file previews (used only when type === "file")
+  // State for file previews
   const [filePreviews, setFilePreviews] = useState<Array<{ file: File; url: string }>>([])
+  
+  // State for async select
+  const [open, setOpen] = useState(false)
+  const [asyncOptions, setAsyncOptions] = useState<Option[]>(initialOptions)
+  const [loading, setLoading] = useState(false)
 
-  // Cleanup object URLs when component unmounts or previews change
+  // Cleanup object URLs
   useEffect(() => {
     return () => {
       filePreviews.forEach((fp) => {
@@ -46,16 +64,40 @@ export function TemplateFormItem({
     }
   }, [filePreviews])
 
+  // Search handler for async select
+  const handleSearch = useCallback(
+    async (search: string) => {
+      if (!onSearch) return
+      setLoading(true)
+      try {
+        const results = await onSearch(search)
+        setAsyncOptions(results.slice(0, 30))
+      } catch (error) {
+        console.error("Search failed", error)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [onSearch],
+  )
+
+  // Initial load for async select if onSearch is provided
+  useEffect(() => {
+    if (type === "async-select" && onSearch) {
+      handleSearch("")
+    }
+  }, [type, onSearch, handleSearch])
+
   return (
-    <div className={cn("grid grid-cols-2 gap-4 items-start py-4 last:border-0", className)}>
+    <div className={cn("grid grid-cols-2 grid-cols-[200px_1fr] gap-4 items-start py-4 last:border-0", className)}>
       <div className="space-y-1">
-        <Label htmlFor={name} className="text-base font-medium">
+        <Label htmlFor={name} className="text-base font-bold">
           {label}
         </Label>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
 
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start w-full">
         <Controller
           name={name}
           control={control}
@@ -65,23 +107,83 @@ export function TemplateFormItem({
                 return (
                   <Checkbox
                     id={name}
-                    onChange={onChange}
+                    onChange={(e) => onChange(e.target.checked)}
                     checked={value ?? false}
-                    // className={inputClassName}
                     disabled={disabled || readOnly}
-                    {...field}
+                    ref={field.ref}
+                    name={field.name}
+                    onBlur={field.onBlur}
+                    // {...field}
                   />
+                )
+
+              case "async-select":
+                return (
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className={cn("justify-between font-normal", inputClassName, !value && "text-muted-foreground")}
+                        disabled={disabled || readOnly}
+                      >
+                        {value
+                          ? asyncOptions.find((opt) => String(opt.value) === String(value))?.label || value
+                          : placeholder || "Оберіть зі списку..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
+                      <Command shouldFilter={!onSearch}> 
+                        <CommandInput 
+                          placeholder="Пошук..." 
+                          onValueChange={(val) => {
+                            if (onSearch) handleSearch(val)
+                          }} 
+                        />
+                        <CommandList>
+                          {loading && <div className="py-6 text-center text-sm">Завантаження...</div>}
+                          <CommandEmpty>Нічого не знайдено.</CommandEmpty>
+                          <CommandGroup>
+                            {asyncOptions.map((option) => (
+                              <CommandItem
+                                key={option.value}
+                                value={String(option.label)} 
+                                onSelect={() => {
+                                  onChange(option.value)
+                                  setOpen(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    String(value) === String(option.value) ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                                {option.label}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 )
 
               case "select":
                 return (
-                  <Select onValueChange={onChange} defaultValue={value} disabled={disabled || readOnly}>
+                  <Select 
+                    onValueChange={onChange} 
+                    value={value ? String(value) : undefined} 
+                    disabled={disabled || readOnly}
+                  >
                     <SelectTrigger className={cn("w-full", inputClassName)}>
                       <SelectValue placeholder={placeholder} />
                     </SelectTrigger>
                     <SelectContent>
-                      {options?.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
+                      {initialOptions?.map((option) => (
+                        <SelectItem key={option.value} value={String(option.value)}>
                           {option.label}
                         </SelectItem>
                       ))}
@@ -106,7 +208,8 @@ export function TemplateFormItem({
                             return { file: f, url: URL.createObjectURL(f) }
                           })
                           .filter((el) => !!el)
-                        setFilePreviews((prev) => [...prev, ...previews])
+                        setFilePreviews((prev) => [...prev, // @ts-ignore
+                          ...previews])
                         onChange(limited)
                       }}
                       {...field}
