@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router"
+import { useSearchParams, useNavigate } from "react-router"
 import { useState, useEffect, useCallback } from "react"
 
 import editIcon from "../assets/icons/pencil.svg"
@@ -9,25 +9,20 @@ import { UsbScanModal } from "../components/custom/scan/usb-scan-modal"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import { VerificationModal } from "../components/custom/scan/verification-modal"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import { data as initialData, columns } from "../components/custom/table-config.tsx"
-import {
-  inboundDocumentsTableColumns,
-  data as inboundDocumentsTableData,
-} from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
-import {
-  expectedDeliveriesTableColumns,
-  data as expectedDeliveriesTableData,
-} from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
+import { data as initialData, columns } from "../components/custom/table-config.tsx" // Keeping for columns definition if needed
+import { api } from "@/lib/api-client"
+import { toast } from "sonner"
+import { inboundDocumentsTableColumns } from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
+import { expectedDeliveriesTableColumns } from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
 
 const ReceivingDocsPage = () => {
   const [globalFilter, setGlobalFilter] = useState("")
-  const [tableData, setTableData] = useState(initialData)
   const [isLoading, setIsLoading] = useState(false)
-  const [filters, setFilters] = useState({ status: "", date: "" })
   const [usbScanModalOpen, setUsbScanModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [verificationData, setVerificationData] = useState<any>(null)
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   const { connect, disconnect, updateStatus, scannedData, clearScannedData } = useScanStore()
 
@@ -59,50 +54,54 @@ const ReceivingDocsPage = () => {
     }
   }, [scannedData])
 
-  // Mock backend request
-  const mockFetchData = useCallback(async (currentFilters: typeof filters) => {
+  const [inboundDocs, setInboundDocs] = useState([])
+  const [expectedDeliveries, setExpectedDeliveries] = useState([])
+  const [qualityIssues, setQualityIssues] = useState([])
+
+  const fetchTabData = useCallback(async (tabName: string | null) => {
     setIsLoading(true)
-    console.log("Fetching data with filters:", currentFilters)
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Simulate filtering
-    let filtered = [...initialData]
-    if (currentFilters.status) {
-      filtered = filtered.filter((item) => (item as any).status?.toLowerCase().includes(currentFilters.status.toLowerCase()))
+    try {
+      if (tabName === "inbound-documents" || !tabName) {
+        // Tab 1: incoming & completed
+        const { data } = await api.get("/documents", { params: { type: "incoming", status: "completed" } })
+        setInboundDocs(data)
+      } else if (tabName === "expected-deliveries") {
+        // Tab 2: incoming & in_process
+        const { data } = await api.get("/documents", { params: { type: "incoming", status: "in_process" } })
+        setExpectedDeliveries(data)
+      } else if (tabName === "quality-issues") {
+        // Tab 3: incoming & expected (completed?) with discrepancy
+        // Prompt said: Document.type = incoming & Document.status = completed, ... related DocumentItems determined as return
+        const { data } = await api.get("/documents", {
+          params: { type: "incoming", status: "completed", hasDiscrepancy: "true" },
+        })
+        setQualityIssues(data)
+      }
+    } catch (e: any) {
+      console.error(e)
+      toast.error("Помилка завантаження даних")
+    } finally {
+      setIsLoading(false)
     }
-
-    setTableData(filtered)
-    setIsLoading(false)
   }, [])
 
-  // Initial load and filter change
+  // Initial load and tab change listener
   useEffect(() => {
-    const timer = setTimeout(() => {
-      mockFetchData(filters)
-    }, 300) // Debounce 300ms
-
-    return () => clearTimeout(timer)
-  }, [filters, mockFetchData])
-
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }))
-  }
+    const currentTab = searchParams.get("tab") || "expected-deliveries"
+    fetchTabData(currentTab)
+  }, [searchParams, fetchTabData])
 
   const handleVerificationSave = () => {
-    // TODO: Save to backend
-    console.log("Saving invoice:", verificationData)
-
-    // Add to table (mock)
-    // setExpectedDeliveriesTableData([...expectedDeliveriesTableData, verificationData])
+    // Refresh current tab data
+    const currentTab = searchParams.get("tab")
+    fetchTabData(currentTab)
 
     // Close modal and clear data
     setVerificationModalOpen(false)
     setVerificationData(null)
     clearScannedData()
 
-    alert("Накладну збережено!")
+    toast.success("Накладну збережено!")
   }
 
   const handleUsbScan = (data: any) => {
@@ -181,17 +180,24 @@ const ReceivingDocsPage = () => {
     {
       value: "inbound-documents",
       label: "Документи надходження",
-      data: inboundDocumentsTableData,
+      data: inboundDocs,
       columns: inboundDocumentsTableColumns,
+      innerToolbar: innerToolbarConfig, // Added standard search toolbar
     },
     {
       value: "expected-deliveries",
       label: "Розпорядження",
-      data: expectedDeliveriesTableData,
+      data: expectedDeliveries,
       columns: expectedDeliveriesTableColumns,
       innerToolbar: receivingDocsInnerToolbarConfig,
     },
-    { value: "quality-issues", label: "Акти невідповідності", data: tableData, columns: columns },
+    {
+      value: "quality-issues",
+      label: "Акти невідповідності",
+      data: qualityIssues,
+      columns: columns, // TODO: might need specific columns for discrepancies
+      innerToolbar: innerToolbarConfig,
+    },
   ]
 
   return (
@@ -213,14 +219,27 @@ const ReceivingDocsPage = () => {
 
       <div className="h-[calc(100vh-65px)] flex flex-col">
         <ConfigurablePage
-          data={tableData}
+          data={expectedDeliveries}
           columns={columns}
           tabs={tabs}
           topToolbar={topToolbarConfig}
           innerToolbar={innerToolbarConfig}
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
+          // We pass empty array as default data, because data is controlled by tabs
+          onRowSelect={(row) => {
+            const tab = searchParams.get("tab")
+            let mode = "all"
+            if (tab === "inbound-documents") mode = "accepted"
+            if (tab === "quality-issues") mode = "discrepancy"
+            // Navigate to details page with mode
+            // We assume row has 'id'
+            if (row && (row as any).id) {
+              navigate(`/receiving-docs/${(row as any).id}?mode=${mode}`)
+            }
+          }}
           isLoading={isLoading}
+          defaultTab="expected-deliveries"
         />
       </div>
     </>
@@ -228,3 +247,17 @@ const ReceivingDocsPage = () => {
 }
 
 export default ReceivingDocsPage
+
+/* 
+        <ConfigurablePage
+           data={tableData}
+          columns={columns}
+          tabs={tabs}
+          topToolbar={topToolbarConfig}
+          innerToolbar={innerToolbarConfig}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          isLoading={isLoading}
+          defaultTab="expected-deliveries"
+        />
+*/

@@ -1,15 +1,17 @@
 import { createBrowserRouter, Outlet } from "react-router"
+
 import App from "./App"
-import { HistoryProvider } from "./providers/history-provider"
+import LoginPage from "./pages/login-page"
 import Layout from "./components/layout/layout"
+import MobileScanPage from "./pages/mobile-scan-page"
 import ReceivingDocsPage from "./pages/receiving-docs-page"
-import { TemplateModalExamples } from "./components/custom/template-modal/template-modal-examples"
+import CounterpartiesPage from "./pages/counterparties-page"
+import { HistoryProvider } from "./providers/history-provider"
+import { RequireAuth } from "./components/layout/require-auth"
 import MedicalProductsPage from "./pages/medical-products-page"
 import FullMedicalProductPage from "./pages/full-medical-product-page"
-import MobileScanPage from "./pages/mobile-scan-page"
-import LoginPage from "./pages/login-page"
-import CounterpartiesPage from "./pages/counterparties-page"
-import { RequireAuth } from "./components/layout/require-auth"
+import ReceivingVerificationPage from "./pages/receiving-verification-page"
+import { TemplateModalExamples } from "./components/custom/template-modal/template-modal-examples"
 
 const AppLayout = () => {
   return (
@@ -36,6 +38,10 @@ export const router = createBrowserRouter([
           {
             path: "/receiving-docs",
             element: <ReceivingDocsPage />,
+          },
+          {
+            path: "/receiving-docs/:id",
+            element: <ReceivingVerificationPage />,
           },
           {
             path: "/template-modal-examples",
@@ -65,12 +71,11 @@ export const router = createBrowserRouter([
         path: "/mobile-scan",
         element: <MobileScanPage />,
       },
-    ]
+    ],
   },
-  
+
   {
     path: "/auth",
     element: <LoginPage />,
   },
 ])
-

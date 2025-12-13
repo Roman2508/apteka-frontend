@@ -55,7 +55,7 @@ export const UsbScanModal = ({ isOpen, onClose, onScanComplete }: UsbScanModalPr
           value={scanBuffer}
           onChange={(e) => setScanBuffer(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="opacity-0 absolute"
+          className="opacity-0 absolute h-0"
           autoFocus
         />
 
