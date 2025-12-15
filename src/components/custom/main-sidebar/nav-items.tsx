@@ -14,35 +14,35 @@ export const NAV_ITEMS = [
       {
         title: "Роздрібний продажі",
         links: [
-          { path: "", label: "Реєстрація продажів", isDisabled: false },
+          { path: "", label: "Реєстрація продажів", isDisabled: true },
           { path: "", label: "Чеки ККМ", isDisabled: true },
         ],
       },
       {
         title: "Введення замовлень клієнтів",
         links: [
-          { path: "", label: "Закриття замовлень покпців (резервів)", isDisabled: false },
+          { path: "", label: "Закриття замовлень покпців (резервів)", isDisabled: true },
           { path: "", label: "Завантаження замовлень покупця", isDisabled: true },
         ],
       },
       {
         title: "Продажі та повернення",
         links: [
-          { path: "", label: "Реалізація товарів/послуг", isDisabled: false },
+          { path: "", label: "Реалізація товарів/послуг", isDisabled: true },
           { path: "", label: "Провернення товарів від клієнта", isDisabled: true },
         ],
       },
       {
         title: "Соціальні проекти",
         links: [
-          { path: "", label: "Звіти про продажі по реімбурсації", isDisabled: false },
+          { path: "", label: "Звіти про продажі по реімбурсації", isDisabled: true },
           { path: "", label: "Соціальні проекти", isDisabled: true },
         ],
       },
       {
         title: "eHealth",
         links: [
-          { path: "", label: "Встановлення цін реімбурсації", isDisabled: false },
+          { path: "", label: "Встановлення цін реімбурсації", isDisabled: true },
           { path: "", label: "Препарати бази eHealth", isDisabled: true },
           { path: "", label: "Медичні програми eHealth", isDisabled: true },
           { path: "", label: "Торгові назви eHealth", isDisabled: true },
@@ -52,7 +52,7 @@ export const NAV_ITEMS = [
       },
       {
         title: "Аналітика продажів",
-        links: [{ path: "", label: "Причини відмов від покупок", isDisabled: false }],
+        links: [{ path: "", label: "Причини відмов від покупок", isDisabled: true }],
       },
       {
         title: "Інше",
@@ -61,12 +61,12 @@ export const NAV_ITEMS = [
       {
         title: "Сервіс",
         links: [
-          { path: "", label: "АРМ роботи замовлень", isDisabled: false },
-          { path: "", label: "Касова зміна", isDisabled: false },
-          { path: "", label: "Зміни користувача", isDisabled: false },
-          { path: "", label: "Пошук по штрихкоду", isDisabled: false },
+          { path: "", label: "АРМ роботи замовлень", isDisabled: true },
+          { path: "", label: "Касова зміна", isDisabled: true },
+          { path: "", label: "Зміни користувача", isDisabled: true },
+          { path: "", label: "Пошук по штрихкоду", isDisabled: true },
           { path: "", label: "Пробиття чеків з офлайн продажу", isDisabled: true },
-          { path: "", label: "Лімітна сума для створення авансу", isDisabled: false },
+          { path: "", label: "Лімітна сума для створення авансу", isDisabled: true },
           { path: "", label: "Процент аванса", isDisabled: true },
         ],
       },
@@ -80,17 +80,17 @@ export const NAV_ITEMS = [
       {
         title: "Закупівлі",
         links: [
-          { path: "", label: "Надходження товарів і послуг", isDisabled: false },
-          { path: "", label: "Повернення товарів постачальнику", isDisabled: false },
-          { path: "", label: "Замовлення по поверненню товарів постачальнику", isDisabled: false },
+          { path: "", label: "Надходження товарів і послуг", isDisabled: true },
+          { path: "", label: "Повернення товарів постачальнику", isDisabled: true },
+          { path: "", label: "Замовлення по поверненню товарів постачальнику", isDisabled: true },
         ],
       },
       {
         title: "Замовлення",
         links: [
-          { path: "", label: "Внутрішні замовлення", isDisabled: false },
-          { path: "", label: "Закриття внутрішніх замовлень", isDisabled: false },
-          { path: "", label: "Управління асортиментом", isDisabled: false },
+          { path: "", label: "Внутрішні замовлення", isDisabled: true },
+          { path: "", label: "Закриття внутрішніх замовлень", isDisabled: true },
+          { path: "", label: "Управління асортиментом", isDisabled: true },
         ],
       },
     ],
@@ -103,57 +103,57 @@ export const NAV_ITEMS = [
       {
         title: "Склад",
         links: [
-          { path: "", label: "Завантажити файли з ФТР", isDisabled: false },
-          { path: "", label: "Препарати з коротким терміном придатності", isDisabled: false },
-          { path: "", label: "Переоцінки", isDisabled: false },
+          { path: "", label: "Завантажити файли з ФТР", isDisabled: true },
+          { path: "", label: "Препарати з коротким терміном придатності", isDisabled: true },
+          { path: "", label: "Переоцінки", isDisabled: true },
         ],
       },
       {
         title: "Складські операції",
         links: [
           { path: "/receiving-docs", label: "Документи прийому", isDisabled: false },
-          { path: "", label: "Документи відвантаження", isDisabled: false },
-          { path: "", label: "Видатковий ордер на товари", isDisabled: false },
-          { path: "", label: "Прибутковий ордер на товари", isDisabled: false },
-          { path: "", label: "Ремонт основних засобів", isDisabled: false },
-          { path: "/mobile-scan", label: "Сканування накладних", isDisabled: false },
+          { path: "", label: "Документи відвантаження", isDisabled: true },
+          { path: "", label: "Видатковий ордер на товари", isDisabled: true },
+          { path: "", label: "Прибутковий ордер на товари", isDisabled: true },
+          { path: "", label: "Ремонт основних засобів", isDisabled: true },
+          { path: "/mobile-scan", label: "Сканування накладних", isDisabled: true },
         ],
       },
       {
         title: "Надлишки, нестачі, псування",
         links: [
-          { path: "", label: "Перерахунки товарів", isDisabled: false },
-          { path: "", label: "Оприбуткування товарів", isDisabled: false },
-          { path: "", label: "Списання товарів", isDisabled: false },
-          { path: "", label: "Пересортування товарів", isDisabled: false },
-          { path: "", label: "Наказ на проведення інвентаризації", isDisabled: false },
-          { path: "", label: "Налаштування списання господарських товарів", isDisabled: false },
-          { path: "", label: "Показати проблемні документи", isDisabled: false },
+          { path: "", label: "Перерахунки товарів", isDisabled: true },
+          { path: "", label: "Оприбуткування товарів", isDisabled: true },
+          { path: "", label: "Списання товарів", isDisabled: true },
+          { path: "", label: "Пересортування товарів", isDisabled: true },
+          { path: "", label: "Наказ на проведення інвентаризації", isDisabled: true },
+          { path: "", label: "Налаштування списання господарських товарів", isDisabled: true },
+          { path: "", label: "Показати проблемні документи", isDisabled: true },
         ],
       },
       {
         title: "Внутрішній рух товарів",
         links: [
-          { path: "", label: "Замовлення на переміщення", isDisabled: false },
-          { path: "", label: "Акт невідповідності", isDisabled: false },
-          { path: "", label: "Переміщення товарів", isDisabled: false },
+          { path: "", label: "Замовлення на переміщення", isDisabled: true },
+          { path: "", label: "Акт невідповідності", isDisabled: true },
+          { path: "", label: "Переміщення товарів", isDisabled: true },
         ],
       },
       {
         title: "Інше",
         links: [
-          { path: "", label: "Правила групування складських комірок при друку", isDisabled: false },
-          { path: "", label: "Складські комірки", isDisabled: false },
+          { path: "", label: "Правила групування складських комірок при друку", isDisabled: true },
+          { path: "", label: "Складські комірки", isDisabled: true },
         ],
       },
       {
         title: "Сервіс",
         links: [
-          { path: "", label: "АРМ повернення товарів з коротким терміном (на аптеку)", isDisabled: false },
-          { path: "", label: "Друк етикеток складських комірок", isDisabled: false },
-          { path: "", label: "Розміщення номенклатури по коміркам", isDisabled: false },
-          { path: "", label: "АРМ Інвентаризації", isDisabled: false },
-          { path: "", label: "Друк етикеток і цінників", isDisabled: false },
+          { path: "", label: "АРМ повернення товарів з коротким терміном (на аптеку)", isDisabled: true },
+          { path: "", label: "Друк етикеток складських комірок", isDisabled: true },
+          { path: "", label: "Розміщення номенклатури по коміркам", isDisabled: true },
+          { path: "", label: "АРМ Інвентаризації", isDisabled: true },
+          { path: "", label: "Друк етикеток і цінників", isDisabled: true },
         ],
       },
     ],
@@ -166,9 +166,9 @@ export const NAV_ITEMS = [
       {
         title: "Звітність",
         links: [
-          { path: "", label: "Розділ Маркетинг", isDisabled: false },
-          { path: "", label: "Розділ Продажі", isDisabled: false },
-          { path: "", label: "Розділ Склад", isDisabled: false },
+          { path: "", label: "Розділ Маркетинг", isDisabled: true },
+          { path: "", label: "Розділ Продажі", isDisabled: true },
+          { path: "", label: "Розділ Склад", isDisabled: true },
         ],
       },
     ],
@@ -181,26 +181,26 @@ export const NAV_ITEMS = [
       {
         title: "Мотивація",
         links: [
-          { path: "", label: "Плановий робочий день працівника", isDisabled: false },
-          { path: "", label: "Штатний розклад", isDisabled: false },
+          { path: "", label: "Плановий робочий день працівника", isDisabled: true },
+          { path: "", label: "Штатний розклад", isDisabled: true },
         ],
       },
       {
         title: "Звіти",
         links: [
-          { path: "", label: "Тривалість робочого дня", isDisabled: false },
-          { path: "", label: "Показники дефектарів", isDisabled: false },
+          { path: "", label: "Тривалість робочого дня", isDisabled: true },
+          { path: "", label: "Показники дефектарів", isDisabled: true },
         ],
       },
       {
         title: "Сервіс",
         links: [
-          { path: "", label: "Детальний звіт по мотивації", isDisabled: false },
-          { path: "", label: "Денний план", isDisabled: false },
-          { path: "", label: "Зведений звіт по мотивації", isDisabled: false },
-          { path: "", label: "Службове вилучення під звіт", isDisabled: false },
-          { path: "", label: "Видача авансових коштів", isDisabled: false },
-          { path: "", label: "Службове внесення розмінної монети", isDisabled: false },
+          { path: "", label: "Детальний звіт по мотивації", isDisabled: true },
+          { path: "", label: "Денний план", isDisabled: true },
+          { path: "", label: "Зведений звіт по мотивації", isDisabled: true },
+          { path: "", label: "Службове вилучення під звіт", isDisabled: true },
+          { path: "", label: "Видача авансових коштів", isDisabled: true },
+          { path: "", label: "Службове внесення розмінної монети", isDisabled: true },
         ],
       },
     ],
@@ -214,9 +214,16 @@ export const NAV_ITEMS = [
         title: "Адміністрування",
         links: [
           { path: "/medical-products", label: "Номенклатура", isDisabled: false },
-          { path: "", label: "Користувачі", isDisabled: false },
-          { path: "", label: "Створити накладну", isDisabled: false },
+          { path: "", label: "Створити накладну", isDisabled: true },
           { path: "/counterparties", label: "Контрагенти", isDisabled: false },
+        ],
+      },
+      {
+        title: "Аптечні мережі та користувачі",
+        links: [
+          { path: "/pharmacy-chains", label: "Аптечні мережі", isDisabled: false },
+          { path: "/pharmacy-points", label: "Аптечні пункти", isDisabled: false },
+          { path: "/users", label: "Користувачі", isDisabled: false },
         ],
       },
     ],

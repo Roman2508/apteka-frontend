@@ -1,4 +1,4 @@
-import { Plus, Upload, HelpCircle } from "lucide-react"
+import { Plus, Upload, HelpCircle, Download } from "lucide-react"
 import { useState, useRef } from "react"
 import { toast } from "sonner"
 import { useNavigate } from "react-router"
@@ -96,7 +96,7 @@ const MedicalProductsPage = () => {
         },
         {
           label: "Завантажити з файлу",
-          icon: <Upload className="w-3.5 h-3.5" />,
+          icon: <Download className="w-3.5 h-3.5" />,
           onClick: () => fileInputRef.current?.click(),
           variant: "default",
           disabled: importExcel.isPending,
@@ -111,7 +111,7 @@ const MedicalProductsPage = () => {
         },
         {
           label: "Експорт",
-          icon: null,
+          icon: <Upload className="w-3.5 h-3.5" />,
           onClick: handleExport,
           variant: "default",
         },

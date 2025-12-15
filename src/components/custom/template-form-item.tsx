@@ -24,6 +24,7 @@ interface TemplateFormItemProps {
   type: FormItemType
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>
+  required?: boolean
   options?: Option[]
   onSearch?: (query: string) => Promise<Option[]>
   disabled?: boolean
@@ -41,6 +42,7 @@ export function TemplateFormItem({
   control,
   options: initialOptions = [],
   onSearch,
+  required,
   disabled,
   readOnly,
   placeholder,
@@ -49,7 +51,7 @@ export function TemplateFormItem({
 }: TemplateFormItemProps) {
   // State for file previews
   const [filePreviews, setFilePreviews] = useState<Array<{ file: File; url: string }>>([])
-  
+
   // State for async select
   const [open, setOpen] = useState(false)
   const [asyncOptions, setAsyncOptions] = useState<Option[]>(initialOptions)
@@ -93,6 +95,7 @@ export function TemplateFormItem({
       <div className="space-y-1">
         <Label htmlFor={name} className="text-base font-bold">
           {label}
+          {required ? "*" : ""}
         </Label>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
@@ -113,6 +116,7 @@ export function TemplateFormItem({
                     ref={field.ref}
                     name={field.name}
                     onBlur={field.onBlur}
+                    required={!!required}
                     // {...field}
                   />
                 )
@@ -135,12 +139,12 @@ export function TemplateFormItem({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
-                      <Command shouldFilter={!onSearch}> 
-                        <CommandInput 
-                          placeholder="Пошук..." 
+                      <Command shouldFilter={!onSearch}>
+                        <CommandInput
+                          placeholder="Пошук..."
                           onValueChange={(val) => {
                             if (onSearch) handleSearch(val)
-                          }} 
+                          }}
                         />
                         <CommandList>
                           {loading && <div className="py-6 text-center text-sm">Завантаження...</div>}
@@ -149,7 +153,7 @@ export function TemplateFormItem({
                             {asyncOptions.map((option) => (
                               <CommandItem
                                 key={option.value}
-                                value={String(option.label)} 
+                                value={String(option.label)}
                                 onSelect={() => {
                                   onChange(option.value)
                                   setOpen(false)
@@ -173,9 +177,10 @@ export function TemplateFormItem({
 
               case "select":
                 return (
-                  <Select 
-                    onValueChange={onChange} 
-                    value={value ? String(value) : undefined} 
+                  <Select
+                    required={!!required}
+                    onValueChange={onChange}
+                    value={value ? String(value) : undefined}
                     disabled={disabled || readOnly}
                   >
                     <SelectTrigger className={cn("w-full", inputClassName)}>
@@ -198,6 +203,7 @@ export function TemplateFormItem({
                       id={name}
                       type="file"
                       multiple
+                      required={!!required}
                       disabled={disabled || readOnly}
                       onChange={(e) => {
                         const files = e.target.files ? Array.from(e.target.files) : []
@@ -208,8 +214,10 @@ export function TemplateFormItem({
                             return { file: f, url: URL.createObjectURL(f) }
                           })
                           .filter((el) => !!el)
-                        setFilePreviews((prev) => [...prev, // @ts-ignore
-                          ...previews])
+                        setFilePreviews((prev) => [
+                          ...prev, // @ts-ignore
+                          ...previews,
+                        ])
                         onChange(limited)
                       }}
                       {...field}
@@ -253,6 +261,7 @@ export function TemplateFormItem({
                     disabled={disabled}
                     readOnly={readOnly}
                     value={value ?? ""}
+                    required={!!required}
                     placeholder={placeholder}
                     className={inputClassName}
                     onChange={(e) => onChange(e.target.valueAsNumber)}
@@ -266,11 +275,12 @@ export function TemplateFormItem({
                   <Input
                     id={name}
                     type={type}
-                    placeholder={placeholder}
                     disabled={disabled}
                     readOnly={readOnly}
                     onChange={onChange}
                     value={value ?? ""}
+                    required={!!required}
+                    placeholder={placeholder}
                     className={inputClassName}
                     {...field}
                   />

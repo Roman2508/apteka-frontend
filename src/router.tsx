@@ -2,6 +2,7 @@ import { createBrowserRouter, Outlet } from "react-router"
 
 import App from "./App"
 import LoginPage from "./pages/login-page"
+import UsersPage from "./pages/users-page"
 import Layout from "./components/layout/layout"
 import MobileScanPage from "./pages/mobile-scan-page"
 import ReceivingDocsPage from "./pages/receiving-docs-page"
@@ -30,11 +31,17 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
+          // Temporary
           {
             path: "/",
             element: <App />,
           },
-          // Add more routes here as needed for testing navigation
+          {
+            path: "/template-modal-examples",
+            element: <TemplateModalExamples />,
+          },
+          
+          // Склад
           {
             path: "/receiving-docs",
             element: <ReceivingDocsPage />,
@@ -43,10 +50,8 @@ export const router = createBrowserRouter([
             path: "/receiving-docs/:id",
             element: <ReceivingVerificationPage />,
           },
-          {
-            path: "/template-modal-examples",
-            element: <TemplateModalExamples />,
-          },
+
+          // Адміністрування
           {
             path: "/medical-products",
             element: <MedicalProductsPage />,
@@ -58,6 +63,19 @@ export const router = createBrowserRouter([
           {
             path: "/counterparties",
             element: <CounterpartiesPage />,
+          },
+
+          {
+            path: "/pharmacy-chains",
+            element: <UsersPage />, // replace
+          },
+          {
+            path: "/pharmacy-points",
+            element: <UsersPage />, // replace
+          },
+          {
+            path: "/users",
+            element: <UsersPage />,
           },
         ],
       },

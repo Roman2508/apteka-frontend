@@ -17,6 +17,7 @@ export interface FormFieldConfig {
   description?: string
   required?: boolean
   disabled?: boolean
+  readonly?: boolean
 }
 
 export interface EntityFormModalProps<TData> {
@@ -75,7 +76,7 @@ export function EntityFormModal<TData extends FieldValues>({
         return "Копіювати запис"
     }
   }
-
+  console.log("fields", fields)
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -93,6 +94,8 @@ export function EntityFormModal<TData extends FieldValues>({
               type={field.type}
               options={field.options}
               onSearch={field.onSearch}
+              readOnly={field.readonly}
+              required={field.required}
               placeholder={field.placeholder}
               description={field.description}
               disabled={field.disabled || isLoading || isSubmitting}

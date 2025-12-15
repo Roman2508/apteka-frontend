@@ -2,6 +2,7 @@ import { useState } from "react"
 
 import { NAV_ITEMS } from "./nav-items"
 import { Link } from "react-router"
+import { Button } from "@/components/ui/button"
 
 export function SidebarTree() {
   const [openedId, setOpenId] = useState<number | null>(null)
@@ -33,13 +34,19 @@ export function SidebarTree() {
                       <div key={section.title} className="p-4">
                         <h3 className="text-success-primary mb-2 text-md">{section.title}</h3>
                         <ul>
-                          {section.links.map((link) => (
-                            <li key={link.label} className="mb-1 text-base hover:underline">
+                          {section.links.map((link) => {
+                            if (link.isDisabled) {
+                              return <li key={link.label} className="mb-1 text-base opacity-25 cursor-default">
+                                {link.label}
+                              </li>
+                            }
+
+                            return <li key={link.label} className="mb-1 text-base hover:underline">
                               <Link to={link.path} onClick={() => setOpenId(null)}>
                                 {link.label}
                               </Link>
                             </li>
-                          ))}
+                          })}
                         </ul>
                       </div>
                     ))}

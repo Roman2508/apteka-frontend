@@ -1,6 +1,17 @@
 import { useSearchParams } from "react-router"
 import { type ColumnDef } from "@tanstack/react-table"
-import { useState, type Dispatch, type SetStateAction, useEffect, useCallback, type ReactNode, useMemo, forwardRef, useImperativeHandle, type ForwardedRef } from "react"
+import {
+  useState,
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useCallback,
+  type ReactNode,
+  useMemo,
+  forwardRef,
+  useImperativeHandle,
+  type ForwardedRef,
+} from "react"
 
 import { TemplateTable } from "./template-table"
 import { type TableAction } from "./table-actions"
@@ -69,6 +80,7 @@ function deriveFormFields(columns: ColumnDef<any>[]): FormFieldConfig[] {
         description: meta?.form?.description,
         required: meta?.form?.required,
         disabled: meta?.form?.disabled,
+        readonly: meta?.form?.readonly,
       }
     })
 }
@@ -298,7 +310,9 @@ function ConfigurablePageInternal<TData>(
   // Helper to render the table content
   const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => (
     <div className="flex-1 flex flex-col min-h-0 gap-2">
-      {toolbarConfig && <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />}
+      {toolbarConfig && (
+        <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+      )}
 
       {!!columns.length && (
         <TemplateTable
@@ -332,9 +346,15 @@ function ConfigurablePageInternal<TData>(
         fields={activeFormFields}
         isLoading={isLoading}
       />
+
       <div className="h-full flex flex-col">
         {topToolbar && (
-          <DynamicToolbar {...topToolbar} className="mb-2" actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+          <DynamicToolbar
+            {...topToolbar}
+            className="mb-2"
+            actions={defaultActions}
+            actionsMenuDisabled={!selectedRow}
+          />
         )}
 
         {children ? (
@@ -360,7 +380,9 @@ function ConfigurablePageInternal<TData>(
             ))}
           </Tabs>
         ) : (
-          <div className="flex-1 flex flex-col min-h-0">{renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}</div>
+          <div className="flex-1 flex flex-col min-h-0">
+            {renderTableContent(tableData, defaultColumns, defaultInnerToolbar)}
+          </div>
         )}
       </div>
     </>
@@ -369,6 +391,5 @@ function ConfigurablePageInternal<TData>(
 
 // Fixed forwardRef type assertion
 export const ConfigurablePage = forwardRef(ConfigurablePageInternal) as <TData>(
-  props: ConfigurablePageProps<TData> & { ref?: ForwardedRef<ConfigurablePageRef> }
+  props: ConfigurablePageProps<TData> & { ref?: ForwardedRef<ConfigurablePageRef> },
 ) => ReturnType<typeof ConfigurablePageInternal>
-
