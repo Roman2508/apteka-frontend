@@ -63,7 +63,11 @@ export interface ConfigurablePageRef {
 
 function deriveFormFields(columns: ColumnDef<any>[]): FormFieldConfig[] {
   return columns
-    .filter((col) => !!(col as any).accessorKey)
+    .filter((col) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const meta = (col as any).meta as any
+      return !!(col as any).accessorKey && !meta?.form?.hidden
+    })
     .map((col) => {
       const accessorKey = (col as any).accessorKey
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -308,32 +312,36 @@ function ConfigurablePageInternal<TData>(
   }, [handleAction])
 
   // Helper to render the table content
-  const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => (
-    <div className="flex-1 flex flex-col min-h-0 gap-2">
-      {toolbarConfig && (
-        <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
-      )}
+  const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => {
+    const visibleColumns = columns.filter((col) => !(col.meta as any)?.hideInTable)
 
-      {!!columns.length && (
-        <TemplateTable
-          columns={columns}
-          data={data}
-          selectedRow={selectedRow}
-          onRowSelect={(row) => {
-            setSelectedRow(row)
-            onRowSelect?.(row)
-          }}
-          pageSizeOptions={[20, 50, 100]}
-          defaultPageSize={20}
-          globalFilter={globalFilter}
-          setGlobalFilter={setGlobalFilter}
-          actions={defaultActions}
-          markedRows={markedRows}
-          isLoading={isLoading}
-        />
-      )}
-    </div>
-  )
+    return (
+      <div className="flex-1 flex flex-col min-h-0 gap-2">
+        {toolbarConfig && (
+          <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+        )}
+
+        {!!visibleColumns.length && (
+          <TemplateTable
+            columns={visibleColumns}
+            data={data}
+            selectedRow={selectedRow}
+            onRowSelect={(row) => {
+              setSelectedRow(row)
+              onRowSelect?.(row)
+            }}
+            pageSizeOptions={[20, 50, 100]}
+            defaultPageSize={20}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            actions={defaultActions}
+            markedRows={markedRows}
+            isLoading={isLoading}
+          />
+        )}
+      </div>
+    )
+  }
 
   return (
     <>

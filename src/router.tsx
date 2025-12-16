@@ -13,6 +13,7 @@ import MedicalProductsPage from "./pages/medical-products-page"
 import FullMedicalProductPage from "./pages/full-medical-product-page"
 import ReceivingVerificationPage from "./pages/receiving-verification-page"
 import { TemplateModalExamples } from "./components/custom/template-modal/template-modal-examples"
+import PharmacyChainsPage from "./pages/pharmacy-chains-page"
 
 const AppLayout = () => {
   return (
@@ -67,7 +68,7 @@ export const router = createBrowserRouter([
 
           {
             path: "/pharmacy-chains",
-            element: <UsersPage />, // replace
+            element: <PharmacyChainsPage />,
           },
           {
             path: "/pharmacy-points",

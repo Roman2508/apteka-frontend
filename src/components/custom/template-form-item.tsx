@@ -7,10 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Button } from "@/components/ui/button"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export type FormItemType = "text" | "number" | "password" | "checkbox" | "select" | "async-select" | "file"
+export type FormItemType =
+  | "text"
+  | "number"
+  | "password"
+  | "checkbox"
+  | "select"
+  | "async-select"
+  | "file"
+  | "multi-select"
 
 export interface Option {
   label: string
@@ -57,6 +65,29 @@ export function TemplateFormItem({
   const [asyncOptions, setAsyncOptions] = useState<Option[]>(initialOptions)
   const [loading, setLoading] = useState(false)
 
+  // State for label mapping (for multi-select and async-select)
+  const [labelMap, setLabelMap] = useState<Record<string, string>>({})
+
+  // Update label map when options change
+  useEffect(() => {
+    const newMap = { ...labelMap }
+    let changed = false
+    const addOptions = (opts: Option[]) => {
+      opts.forEach((opt) => {
+        const key = String(opt.value)
+        if (newMap[key] !== opt.label) {
+          newMap[key] = opt.label
+          changed = true
+        }
+      })
+    }
+    addOptions(initialOptions)
+    addOptions(asyncOptions)
+
+    if (changed) setLabelMap(newMap)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOptions, asyncOptions]) // Intentionally not including labelMap to avoid loops, though logic handles it.
+
   // Cleanup object URLs
   useEffect(() => {
     return () => {
@@ -85,7 +116,7 @@ export function TemplateFormItem({
 
   // Initial load for async select if onSearch is provided
   useEffect(() => {
-    if (type === "async-select" && onSearch) {
+    if ((type === "async-select" || type === "multi-select") && onSearch) {
       handleSearch("")
     }
   }, [type, onSearch, handleSearch])
@@ -132,9 +163,7 @@ export function TemplateFormItem({
                         className={cn("justify-between font-normal", inputClassName, !value && "text-muted-foreground")}
                         disabled={disabled || readOnly}
                       >
-                        {value
-                          ? asyncOptions.find((opt) => String(opt.value) === String(value))?.label || value
-                          : placeholder || "Оберіть зі списку..."}
+                        {value ? labelMap[String(value)] || value : placeholder || "Оберіть зі списку..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -173,6 +202,93 @@ export function TemplateFormItem({
                       </Command>
                     </PopoverContent>
                   </Popover>
+                )
+
+              case "multi-select":
+                const selectedValues = Array.isArray(value) ? value : []
+                return (
+                  <div className="flex flex-col gap-2 w-full">
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={open}
+                          className={cn("justify-between font-normal", inputClassName)}
+                          disabled={disabled || readOnly}
+                        >
+                          {placeholder || "Оберіть зі списку..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+
+                      <PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
+                        <Command shouldFilter={!onSearch}>
+                          <CommandInput
+                            placeholder="Пошук..."
+                            onValueChange={(val) => {
+                              if (onSearch) handleSearch(val)
+                            }}
+                          />
+                          <CommandList>
+                            {loading && <div className="py-6 text-center text-sm">Завантаження...</div>}
+                            <CommandEmpty>Нічого не знайдено.</CommandEmpty>
+                            <CommandGroup>
+                              {asyncOptions.map((option) => {
+                                const isSelected = selectedValues.some((v: any) => String(v) === String(option.value))
+                                return (
+                                  <CommandItem
+                                    key={option.value}
+                                    value={String(option.label)}
+                                    onSelect={() => {
+                                      let newValue
+                                      if (isSelected) {
+                                        newValue = selectedValues.filter((v: any) => String(v) !== String(option.value))
+                                      } else {
+                                        newValue = [...selectedValues, option.value]
+                                      }
+                                      onChange(newValue)
+                                      // Don't close on multi-select to allow multiple chunks
+                                      // setOpen(false)
+                                    }}
+                                  >
+                                    <Check className={cn("mr-2 h-4 w-4", isSelected ? "opacity-100" : "opacity-0")} />
+                                    {option.label}
+                                  </CommandItem>
+                                )
+                              })}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Badges Area */}
+                    {selectedValues.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {selectedValues.map((val: any) => (
+                          <div
+                            key={val}
+                            className="inline-flex items-center rounded-full border px-1 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary-500 text-primary hover:bg-primary/80"
+                          >
+                            {labelMap[String(val)] || val}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newValue = selectedValues.filter((v: any) => String(v) !== String(val))
+                                onChange(newValue)
+                              }}
+                              disabled={disabled || readOnly}
+                              className="cursor-pointer ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:bg-primary-foreground/20"
+                            >
+                              <X className="h-3 w-3" />
+                              <span className="sr-only">Remove</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 )
 
               case "select":
