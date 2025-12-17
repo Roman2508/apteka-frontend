@@ -14,6 +14,7 @@ import FullMedicalProductPage from "./pages/full-medical-product-page"
 import ReceivingVerificationPage from "./pages/receiving-verification-page"
 import { TemplateModalExamples } from "./components/custom/template-modal/template-modal-examples"
 import PharmacyChainsPage from "./pages/pharmacy-chains-page"
+import PharmaciesPage from "./pages/pharmacies-page"
 
 const AppLayout = () => {
   return (
@@ -41,7 +42,7 @@ export const router = createBrowserRouter([
             path: "/template-modal-examples",
             element: <TemplateModalExamples />,
           },
-          
+
           // Склад
           {
             path: "/receiving-docs",
@@ -72,7 +73,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "/pharmacy-points",
-            element: <UsersPage />, // replace
+            element: <PharmaciesPage />,
           },
           {
             path: "/users",

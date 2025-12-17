@@ -5,55 +5,60 @@ import { Download, HelpCircle, Upload } from "lucide-react"
 import { formatDate } from "@/helpers/format-date"
 import { ConfigurablePage, type ConfigurablePageRef } from "@/components/custom/configurable-page"
 import {
-  useCreatePharmacyChain,
-  useDeletePharmacyChain,
-  usePharmacyChains,
-  useUpdatePharmacyChain,
-  type PharmacyChain,
-} from "@/hooks/use-pharmacy-chains"
+  useCreatePharmacy,
+  useDeletePharmacy,
+  usePharmacies,
+  useUpdatePharmacy,
+  type Pharmacy,
+} from "@/hooks/use-pharmacies"
 
-const columns: ColumnDef<PharmacyChain>[] = [
+const columns: ColumnDef<Pharmacy>[] = [
   {
-    accessorKey: "name",
-    header: "Назва",
-    meta: { form: { type: "text", required: true, placeholder: "Введіть назву" } },
+    accessorKey: "number",
+    header: "Номер",
+    meta: { form: { type: "text", required: true, placeholder: "Введіть номер" } },
   },
   {
-    accessorKey: "edrpou_code",
-    header: "ЄДРПОУ",
-    meta: { form: { type: "text", required: true, placeholder: "Введіть назву" } },
-  },
-  {
-    accessorKey: "pharmacyCount",
-    header: "К-ть аптек",
-    // meta.form.hidden only in modal, but meta.hideInTable = true only in table
-    meta: { form: { hidden: true, type: "number", required: true, readonly: true } },
-  },
-  {
-    accessorKey: "userCount",
-    header: "К-ть користувачів",
-    meta: { form: { hidden: true, type: "number", required: true, readonly: true } },
-  },
-  {
-    accessorKey: "pharmacies",
-    header: "Аптеки",
-    cell: ({ getValue }) => {
-      const pharmacies = getValue<PharmacyChain["pharmacies"]>()
-      return pharmacies ? pharmacies.map((pharmacy) => pharmacy.number).join(", ") : "-"
-    },
+    accessorKey: "chain",
+    header: "Мережа",
     meta: {
-      hideInTable: true,
       form: {
-        type: "multi-select",
+        type: "select",
         required: true,
         options: [
-          { label: "Аптека 1123", value: "1123" },
-          { label: "Аптека 7485", value: "7485" },
-          { label: "Аптека 2501", value: "2501" },
-          { label: "Аптека 8591", value: "8591" },
+          { label: "Асистент фармацевта", value: "pharmacist" },
+          { label: "Адміністратор", value: "admin" },
         ],
-        placeholder: "Аптеки",
+        placeholder: "Виберіть",
       },
+    },
+    cell: ({ getValue }) => {
+      const chain = getValue<Pharmacy["chain"]>()
+      return chain ? chain.name : "-"
+    },
+  },
+  {
+    accessorKey: "address",
+    header: "Адреса",
+    meta: { form: { type: "text", required: true, placeholder: "Введіть адресу" } },
+  },
+  {
+    accessorKey: "ownerId",
+    header: "Зав.аптеки",
+    meta: {
+      form: {
+        type: "select",
+        required: true,
+        options: [
+          { label: "Асистент фармацевта", value: "pharmacist" },
+          { label: "Адміністратор", value: "admin" },
+        ],
+        placeholder: "Виберіть",
+      },
+    },
+    cell: ({ getValue }) => {
+      const owner = getValue<Pharmacy["owner"]>()
+      return owner ? owner.full_name : "-"
     },
   },
   {
@@ -68,21 +73,23 @@ const columns: ColumnDef<PharmacyChain>[] = [
   },
 ]
 
-const PharmacyChainsPage = () => {
-  const { data: pharmacyChains, isLoading } = usePharmacyChains()
-  const createMutation = useCreatePharmacyChain()
-  const updateMutation = useUpdatePharmacyChain()
-  const deleteMutation = useDeletePharmacyChain()
+const PharmaciesPage = () => {
+  const { data: pharmacies, isLoading } = usePharmacies()
+  const createMutation = useCreatePharmacy()
+  const updateMutation = useUpdatePharmacy()
+  const deleteMutation = useDeletePharmacy()
 
   const pageRef = useRef<ConfigurablePageRef>(null)
 
-  const handleEntitySave = async (data: PharmacyChain, mode: "create" | "edit" | "copy") => {
+  const handleEntitySave = async (data: Pharmacy, mode: "create" | "edit" | "copy") => {
     try {
+      const { chain, ...rest } = data
       if (mode === "create" || mode === "copy") {
-        // const _data = data as unknown as CreateUserDto
-        await createMutation.mutateAsync(data)
+        // @ts-ignore
+        await createMutation.mutateAsync({ chainId: +chain, ...rest })
       } else if (mode === "edit") {
-        await updateMutation.mutateAsync({ id: data.id, data })
+        // @ts-ignore    // chain === string
+        await updateMutation.mutateAsync({ id: data.id, data: { ...rest, chainId: +chain } })
       }
     } catch (error) {
       console.error("Failed to save pharmacy chain:", error)
@@ -91,7 +98,7 @@ const PharmacyChainsPage = () => {
   }
 
   const customActions = {
-    delete: (row: PharmacyChain | null) => {
+    delete: (row: Pharmacy | null) => {
       if (row) {
         if (confirm("Ви впевнені, що хочете видалити цю мережу?")) {
           deleteMutation.mutate(row.id)
@@ -104,17 +111,17 @@ const PharmacyChainsPage = () => {
   return (
     <ConfigurablePage
       ref={pageRef}
-      data={pharmacyChains || []}
+      data={pharmacies || []}
       columns={columns}
       isLoading={isLoading}
       onEntitySave={handleEntitySave}
       customActions={customActions}
       topToolbar={{
-        title: "Мережі аптек",
+        title: "Аптечні пункти",
         items: [
           [
             {
-              label: "Додати мережу",
+              label: "Додати аптечний пункт",
               onClick: () => pageRef.current?.openModal("create"),
               variant: "primary",
             },
@@ -146,4 +153,4 @@ const PharmacyChainsPage = () => {
   )
 }
 
-export default PharmacyChainsPage
+export default PharmaciesPage
