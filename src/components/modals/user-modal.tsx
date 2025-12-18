@@ -21,20 +21,20 @@ const userSchema = z
     role: z.enum(["admin", "director", "pharmacist", "senior_pharmacist"]),
     password: z.string().min(4, "Мінімум 4 символи").optional().or(z.literal("")),
     is_active: z.boolean(),
-    pharmacyChainId: z.number().optional(),
+    chainId: z.number().optional(),
     pharmacyNumber: z.string().optional(),
     pharmacyAddress: z.string().optional(),
   })
   .refine(
     (data) => {
       if (data.role === "director") {
-        return data.pharmacyChainId && data.pharmacyNumber && data.pharmacyAddress
+        return data.chainId && data.pharmacyNumber && data.pharmacyAddress
       }
       return true
     },
     {
       message: "Для завідувача обов'язково вказати мережу, номер та адресу аптеки",
-      path: ["pharmacyChainId"],
+      path: ["chainId"],
     },
   )
 
@@ -61,7 +61,7 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
       role: "director",
       password: "",
       is_active: true,
-      pharmacyChainId: undefined,
+      chainId: undefined,
       pharmacyNumber: "",
       pharmacyAddress: "",
     },
@@ -79,7 +79,7 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
           role: user.role,
           password: "",
           is_active: user.is_active,
-          pharmacyChainId: user.ownedPharmacy?.chain?.id,
+          chainId: user.ownedPharmacy?.chain?.id,
           pharmacyNumber: user.ownedPharmacy?.number || "",
           pharmacyAddress: user.ownedPharmacy?.address || "",
         })
@@ -91,7 +91,7 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
           role: "director",
           password: "",
           is_active: true,
-          pharmacyChainId: undefined,
+          chainId: undefined,
           pharmacyNumber: "",
           pharmacyAddress: "",
         })
@@ -119,7 +119,7 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
       }
 
       if (data.role === "director") {
-        payload.pharmacyChainId = data.pharmacyChainId
+        payload.chainId = data.chainId
         payload.pharmacyNumber = data.pharmacyNumber
         payload.pharmacyAddress = data.pharmacyAddress
       }
@@ -156,7 +156,9 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
                 placeholder="student01"
                 error={!!form.formState.errors.username}
               />
-              {form.formState.errors.username && <p className="text-sm text-red-500">{form.formState.errors.username.message}</p>}
+              {form.formState.errors.username && (
+                <p className="text-sm text-red-500">{form.formState.errors.username.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -169,13 +171,17 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" {...form.register("email")} placeholder="student@example.com" />
-              {form.formState.errors.email && <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>}
+              {form.formState.errors.email && (
+                <p className="text-sm text-red-500">{form.formState.errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">{mode === "create" ? "Пароль *" : "Новий пароль"}</Label>
               <Input id="password" type="password" {...form.register("password")} placeholder="••••••••" />
-              {form.formState.errors.password && <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>}
+              {form.formState.errors.password && (
+                <p className="text-sm text-red-500">{form.formState.errors.password.message}</p>
+              )}
             </div>
           </div>
 
@@ -210,10 +216,10 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pharmacyChainId">Мережа аптек *</Label>
+                <Label htmlFor="chainId">Мережа аптек *</Label>
                 <Select
-                  value={form.watch("pharmacyChainId")?.toString() || ""}
-                  onValueChange={(value) => form.setValue("pharmacyChainId", parseInt(value))}
+                  value={form.watch("chainId")?.toString() || ""}
+                  onValueChange={(value) => form.setValue("chainId", parseInt(value))}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Оберіть мережу" />
@@ -226,8 +232,8 @@ export const UserModal = ({ open, onOpenChange, mode, user }: UserModalProps) =>
                     ))}
                   </SelectContent>
                 </Select>
-                {form.formState.errors.pharmacyChainId && (
-                  <p className="text-sm text-red-500">{form.formState.errors.pharmacyChainId.message}</p>
+                {form.formState.errors.chainId && (
+                  <p className="text-sm text-red-500">{form.formState.errors.chainId.message}</p>
                 )}
               </div>
 

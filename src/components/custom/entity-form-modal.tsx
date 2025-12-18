@@ -76,7 +76,9 @@ export function EntityFormModal<TData extends FieldValues>({
         return "Копіювати запис"
     }
   }
-  
+
+  console.log("defaultValues", defaultValues)
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">

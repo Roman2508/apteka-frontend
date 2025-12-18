@@ -60,7 +60,7 @@ const PharmaciesPage = () => {
         meta: { form: { type: "text", required: true, placeholder: "Введіть номер" } },
       },
       {
-        accessorKey: "chain",
+        accessorKey: "chainId",
         header: "Мережа",
         meta: {
           form: {
@@ -70,9 +70,9 @@ const PharmaciesPage = () => {
             placeholder: "Виберіть",
           },
         },
-        cell: ({ getValue }) => {
-          const chain = getValue<Pharmacy["chain"]>()
-          return chain ? chain.name : "-"
+        cell: ({ row }) => {
+          console.log(row?.original?.chain)
+          return row?.original?.chain?.name ? row?.original?.chain?.name : "-"
         },
       },
       {
@@ -91,9 +91,8 @@ const PharmaciesPage = () => {
             placeholder: "Виберіть",
           },
         },
-        cell: ({ getValue }) => {
-          const owner = getValue<Pharmacy["owner"]>()
-          return owner ? owner.full_name : "-"
+        cell: ({ row }) => {
+          return row?.original?.owner?.full_name ? row.original.owner.full_name : "-"
         },
       },
       {
