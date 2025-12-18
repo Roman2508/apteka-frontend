@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Download, HelpCircle, Upload } from "lucide-react"
 
@@ -11,73 +11,17 @@ import {
   useUpdatePharmacy,
   type Pharmacy,
 } from "@/hooks/use-pharmacies"
-
-const columns: ColumnDef<Pharmacy>[] = [
-  {
-    accessorKey: "number",
-    header: "Номер",
-    meta: { form: { type: "text", required: true, placeholder: "Введіть номер" } },
-  },
-  {
-    accessorKey: "chain",
-    header: "Мережа",
-    meta: {
-      form: {
-        type: "select",
-        required: true,
-        options: [
-          { label: "Асистент фармацевта", value: "pharmacist" },
-          { label: "Адміністратор", value: "admin" },
-        ],
-        placeholder: "Виберіть",
-      },
-    },
-    cell: ({ getValue }) => {
-      const chain = getValue<Pharmacy["chain"]>()
-      return chain ? chain.name : "-"
-    },
-  },
-  {
-    accessorKey: "address",
-    header: "Адреса",
-    meta: { form: { type: "text", required: true, placeholder: "Введіть адресу" } },
-  },
-  {
-    accessorKey: "ownerId",
-    header: "Зав.аптеки",
-    meta: {
-      form: {
-        type: "select",
-        required: true,
-        options: [
-          { label: "Асистент фармацевта", value: "pharmacist" },
-          { label: "Адміністратор", value: "admin" },
-        ],
-        placeholder: "Виберіть",
-      },
-    },
-    cell: ({ getValue }) => {
-      const owner = getValue<Pharmacy["owner"]>()
-      return owner ? owner.full_name : "-"
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Дата створення",
-    cell: ({ getValue }) => {
-      const date = getValue<string>()
-      if (date) return formatDate(date, "long")
-      return "-"
-    },
-    meta: { form: { hidden: true, type: "text", placeholder: "Дата створення", readonly: true } },
-  },
-]
+import { useUsers } from "@/hooks/use-users"
+import { usePharmacyChains } from "@/hooks/use-pharmacy-chains"
 
 const PharmaciesPage = () => {
   const { data: pharmacies, isLoading } = usePharmacies()
   const createMutation = useCreatePharmacy()
   const updateMutation = useUpdatePharmacy()
   const deleteMutation = useDeletePharmacy()
+
+  const { data: users } = useUsers()
+  const { data: chains } = usePharmacyChains()
 
   const pageRef = useRef<ConfigurablePageRef>(null)
 
@@ -107,6 +51,64 @@ const PharmaciesPage = () => {
       return false // prevent default delete
     },
   }
+
+  const columns: ColumnDef<Pharmacy>[] = useMemo(
+    () => [
+      {
+        accessorKey: "number",
+        header: "Номер",
+        meta: { form: { type: "text", required: true, placeholder: "Введіть номер" } },
+      },
+      {
+        accessorKey: "chain",
+        header: "Мережа",
+        meta: {
+          form: {
+            type: "select",
+            required: true,
+            options: chains?.map((chain) => ({ label: chain.name, value: chain.id })) || [],
+            placeholder: "Виберіть",
+          },
+        },
+        cell: ({ getValue }) => {
+          const chain = getValue<Pharmacy["chain"]>()
+          return chain ? chain.name : "-"
+        },
+      },
+      {
+        accessorKey: "address",
+        header: "Адреса",
+        meta: { form: { type: "text", required: true, placeholder: "Введіть адресу" } },
+      },
+      {
+        accessorKey: "ownerId",
+        header: "Зав.аптеки",
+        meta: {
+          form: {
+            type: "select",
+            required: true,
+            options: users?.map((user) => ({ label: user.full_name, value: user.id })) || [],
+            placeholder: "Виберіть",
+          },
+        },
+        cell: ({ getValue }) => {
+          const owner = getValue<Pharmacy["owner"]>()
+          return owner ? owner.full_name : "-"
+        },
+      },
+      {
+        accessorKey: "createdAt",
+        header: "Дата створення",
+        cell: ({ getValue }) => {
+          const date = getValue<string>()
+          if (date) return formatDate(date, "long")
+          return "-"
+        },
+        meta: { form: { hidden: true, type: "text", placeholder: "Дата створення", readonly: true } },
+      },
+    ],
+    [chains, users],
+  )
 
   return (
     <ConfigurablePage

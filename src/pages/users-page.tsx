@@ -77,7 +77,7 @@ const columns: ColumnDef<User>[] = [
       if (date) return formatDate(date, "long")
       return "-"
     },
-    meta: { form: { type: "text", placeholder: "Дата створення", readonly: true } },
+    meta: { form: { hidden: true, type: "text", placeholder: "Дата створення", readonly: true } },
   },
 ]
 
