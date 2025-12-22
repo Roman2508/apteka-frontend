@@ -17,7 +17,7 @@ export function SidebarTree() {
           const open = openedId === item.id
 
           return (
-            <div className="">
+            <div className="" key={item.id}>
               <div className={open ? "bg-white w-22" : "w-22"}>
                 <div
                   onClick={() => setOpenId(open ? null : item.id)}
@@ -36,16 +36,20 @@ export function SidebarTree() {
                         <ul>
                           {section.links.map((link) => {
                             if (link.isDisabled) {
-                              return <li key={link.label} className="mb-1 text-base opacity-25 cursor-default">
-                                {link.label}
-                              </li>
+                              return (
+                                <li key={link.label} className="mb-1 text-base opacity-25 cursor-default">
+                                  {link.label}
+                                </li>
+                              )
                             }
 
-                            return <li key={link.label} className="mb-1 text-base hover:underline">
-                              <Link to={link.path} onClick={() => setOpenId(null)}>
-                                {link.label}
-                              </Link>
-                            </li>
+                            return (
+                              <li key={link.label} className="mb-1 text-base hover:underline">
+                                <Link to={link.path} onClick={() => setOpenId(null)}>
+                                  {link.label}
+                                </Link>
+                              </li>
+                            )
                           })}
                         </ul>
                       </div>

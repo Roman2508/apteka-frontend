@@ -10,7 +10,7 @@ import {
   usePharmacyChains,
   useUpdatePharmacyChain,
   type PharmacyChain,
-} from "@/hooks/use-pharmacy-chains"
+} from "@/hooks/api/use-pharmacy-chains"
 
 const columns: ColumnDef<PharmacyChain>[] = [
   {

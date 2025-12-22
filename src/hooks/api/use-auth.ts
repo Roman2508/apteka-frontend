@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router"
 import { useMutation, useQuery } from "@tanstack/react-query"
 
-import { api } from "../lib/api-client"
-import { useAuthStore } from "../stores/auth.store"
+import { api } from "../../lib/api-client"
+import { useAuthStore } from "../../stores/auth.store"
 
 interface LoginCredentials {
   username: string

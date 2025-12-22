@@ -2,7 +2,7 @@ import { useState, useMemo } from "react"
 import { FileText, Users, Package } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useLogout } from "@/hooks/use-auth"
+import { useLogout } from "@/hooks/api/use-auth"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "@/stores/auth.store"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,7 +31,9 @@ export function Header() {
   const shiftInfo = useMemo(() => {
     if (!session || !user) return "Not logged in"
     const loginDate = new Date(session.loginAt)
-    return `${user.full_name || user.username} / Pharmacy ${session.id} / Shift started: ${loginDate.toLocaleTimeString()}`
+    return `${user.full_name || user.username} / Pharmacy ${
+      session.id
+    } / Shift started: ${loginDate.toLocaleTimeString()}`
   }, [session, user])
 
   const onLogout = () => {
@@ -66,7 +68,12 @@ export function Header() {
             ))}
           </TabsList>
 
-          <Button size="sm" className="ml-2 px-2 h-7 text-xs flex-shrink-0" onClick={onLogout} disabled={logout.isPending}>
+          <Button
+            size="sm"
+            className="ml-2 px-2 h-7 text-xs flex-shrink-0"
+            onClick={onLogout}
+            disabled={logout.isPending}
+          >
             {logout.isPending ? "Closing..." : "Закрити зміну"}
           </Button>
         </div>

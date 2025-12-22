@@ -13,5 +13,22 @@ export default defineConfig({
   },
   server: {
     allowedHosts: true,
+    host: true,
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      "/api": {
+        target: "http://localhost:7777",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        configure: (proxy, options) => {
+          proxy.on("proxyReq", (proxyReq, req, res) => {
+            console.log("Proxying:", req.method, req.url)
+          })
+        },
+      },
+    },
   },
 })

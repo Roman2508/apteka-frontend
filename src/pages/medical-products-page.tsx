@@ -8,7 +8,7 @@ import refreshIcon from "../assets/icons/rotate.svg"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
-import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/use-medical-products"
+import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/api/use-medical-products.ts"
 import { ImportHelpModal } from "../components/modals/import-help-modal"
 
 const MedicalProductsPage = () => {

@@ -7,7 +7,7 @@ import {
   useDeleteCounterparty,
   type Counterparty,
   type CreateCounterpartyDto,
-} from "@/hooks/use-counterparties"
+} from "@/hooks/api/use-counterparties"
 import { ConfigurablePage, type ConfigurablePageRef } from "@/components/custom/configurable-page"
 
 const columns: ColumnDef<Counterparty>[] = [

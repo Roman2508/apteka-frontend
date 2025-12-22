@@ -10,9 +10,9 @@ import {
   type User,
   type CreateUserDto,
   type UpdateUserDto,
-} from "@/hooks/use-users"
+} from "@/hooks/api/use-users"
 import { formatDate } from "@/helpers/format-date"
-import { usePharmacies, type Pharmacy } from "@/hooks/use-pharmacies"
+import { usePharmacies, type Pharmacy } from "@/hooks/api/use-pharmacies"
 import type { UserRoleType } from "@/stores/auth.store"
 import { transformUserRole } from "@/helpers/transform-user-role"
 import { ConfigurablePage, type ConfigurablePageRef } from "@/components/custom/configurable-page"
@@ -78,7 +78,10 @@ const UsersPage = () => {
         accessorKey: "password",
         header: "Пароль",
         cell: () => "-",
-        meta: { form: { type: "password", placeholder: "Пароль" } } as any,
+        meta: {
+          hideInTable: true,
+          form: { type: "password", placeholder: "Пароль" },
+        } as any,
       },
       {
         accessorKey: "role",
@@ -104,9 +107,10 @@ const UsersPage = () => {
       {
         accessorKey: "pharmacy",
         header: "Аптека",
-        cell: ({ getValue }) => {
-          const pharmacy = getValue<Pharmacy>()
-          return pharmacy ? pharmacy.number : "-"
+        cell: ({ row }) => {
+          return row.original.ownedPharmacy
+            ? `${row.original.ownedPharmacy?.chain?.name} - ${row.original.ownedPharmacy?.number}`
+            : "-"
         },
         meta: {
           form: {
@@ -134,7 +138,7 @@ const UsersPage = () => {
         meta: { form: { hidden: true, type: "text", placeholder: "Дата створення", readonly: true } },
       },
     ],
-    [],
+    [pharmacies],
   )
 
   return (

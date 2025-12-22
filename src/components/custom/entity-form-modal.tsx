@@ -46,6 +46,9 @@ export function EntityFormModal<TData extends FieldValues>({
     formState: { isSubmitting },
   } = useForm<TData>({
     defaultValues: (defaultValues || {}) as DefaultValues<TData>,
+    // Unregister inputs when they are unmounted so only visible (mounted)
+    // fields are included in the submit data.
+    shouldUnregister: true,
   })
 
   // Reset form when dialog opens or defaults change
@@ -62,7 +65,22 @@ export function EntityFormModal<TData extends FieldValues>({
   }, [isOpen, defaultValues, mode, reset])
 
   const onSubmit: SubmitHandler<TData> = async (data) => {
-    await onSave(data)
+    // Prepare payload: remove identifying fields when copying so backend
+    // generates a new entity instead of trying to update existing one.
+    const payload: any = { ...(data as any) }
+
+    // For create and copy modes we must not send identifying fields
+    // to the backend so a new entity is created server-side.
+    if (mode === "copy" || mode === "create") {
+      await onSave(payload)
+    } else {
+      // Ensure identifier is included when editing even if the id field
+      // was not rendered (and therefore unregistered) in the form.
+      const incomingId = (defaultValues as any)?.id
+      const result = incomingId ? { ...payload, id: incomingId } : payload
+      await onSave(result)
+    }
+
     onClose()
   }
 

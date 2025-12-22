@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { Navigate, Outlet, useLocation } from "react-router"
 import { useAuthStore } from "../../stores/auth.store"
-import { useProfile } from "../../hooks/use-auth"
+import { useProfile } from "../../hooks/api/use-auth"
 
 export const RequireAuth = () => {
   const token = useAuthStore((state) => state.token)

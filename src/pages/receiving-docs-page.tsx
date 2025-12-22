@@ -14,6 +14,20 @@ import { api } from "@/lib/api-client"
 import { toast } from "sonner"
 import { inboundDocumentsTableColumns } from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
 import { expectedDeliveriesTableColumns } from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
+// import { useDocuments } from "@/hooks/api/use-documents.ts"
+
+// const getReceivingDocsParams = (tab: string | null) => {
+//   switch (tab) {
+//     case "inbound-documents":
+//       return { type: "incoming", status: "completed" }
+//     case "expected-deliveries":
+//       return { type: "incoming", status: "in_process" }
+//     case "quality-issues":
+//       return { type: "incoming", status: "completed", hasDiscrepancy: true }
+//     default:
+//       return { type: "incoming", status: "in_process" }
+//   }
+// }
 
 const ReceivingDocsPage = () => {
   const [globalFilter, setGlobalFilter] = useState("")
@@ -25,6 +39,8 @@ const ReceivingDocsPage = () => {
   const navigate = useNavigate()
 
   const { connect, disconnect, updateStatus, scannedData, clearScannedData } = useScanStore()
+
+  // const { data: documents } = useDocuments(getReceivingDocsParams(searchParams.get("tab")))
 
   // Connect to WebSocket on mount
   useEffect(() => {
@@ -65,11 +81,15 @@ const ReceivingDocsPage = () => {
         // Tab 1: incoming & completed
         const { data } = await api.get("/documents", { params: { type: "incoming", status: "completed" } })
         setInboundDocs(data)
-      } else if (tabName === "expected-deliveries") {
+      }
+      //
+      else if (tabName === "expected-deliveries") {
         // Tab 2: incoming & in_process
         const { data } = await api.get("/documents", { params: { type: "incoming", status: "in_process" } })
         setExpectedDeliveries(data)
-      } else if (tabName === "quality-issues") {
+      }
+      //
+      else if (tabName === "quality-issues") {
         // Tab 3: incoming & expected (completed?) with discrepancy
         // Prompt said: Document.type = incoming & Document.status = completed, ... related DocumentItems determined as return
         const { data } = await api.get("/documents", {
@@ -89,12 +109,21 @@ const ReceivingDocsPage = () => {
   useEffect(() => {
     const currentTab = searchParams.get("tab") || "expected-deliveries"
     fetchTabData(currentTab)
-  }, [searchParams, fetchTabData])
+    // if (searchParams.get("tab") === "inbound-documents") {
+    //   setInboundDocs(documents)
+    // }
+    // if (searchParams.get("tab") === "expected-deliveries") {
+    //   setExpectedDeliveries(documents)
+    // }
+    // if (searchParams.get("tab") === "quality-issues") {
+    //   setQualityIssues(documents)
+    // }
+  }, [searchParams /* , documents  */, fetchTabData])
 
   const handleVerificationSave = () => {
     // Refresh current tab data
-    const currentTab = searchParams.get("tab")
-    fetchTabData(currentTab)
+    // const currentTab = searchParams.get("tab")
+    // fetchTabData(currentTab)
 
     // Close modal and clear data
     setVerificationModalOpen(false)
@@ -202,7 +231,11 @@ const ReceivingDocsPage = () => {
 
   return (
     <>
-      <UsbScanModal isOpen={usbScanModalOpen} onClose={() => setUsbScanModalOpen(false)} onScanComplete={handleUsbScan} />
+      <UsbScanModal
+        isOpen={usbScanModalOpen}
+        onClose={() => setUsbScanModalOpen(false)}
+        onScanComplete={handleUsbScan}
+      />
 
       {verificationData && (
         <VerificationModal

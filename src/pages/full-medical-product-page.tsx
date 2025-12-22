@@ -9,7 +9,13 @@ import { toast } from "sonner"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import { TemplateFormItem } from "../components/custom/template-form-item.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import { useProduct, useCreateProduct, useUpdateProduct, useUploadPhotos, useDeletePhoto } from "../hooks/use-medical-products"
+import {
+  useProduct,
+  useCreateProduct,
+  useUpdateProduct,
+  useUploadPhotos,
+  useDeletePhoto,
+} from "../hooks/api/use-medical-products.ts"
 
 // --- Schema Definition ---
 const productSchema = z.object({
@@ -214,7 +220,7 @@ const FullMedicalProductPage = () => {
       ],
     ],
   }
-console.log(product)
+  console.log(product)
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:7777"
 
   return (
@@ -361,7 +367,14 @@ console.log(product)
               <p className="text-xs text-muted-foreground">Максимум 10 фото</p>
             </div>
             <div>
-              <input ref={photoInputRef} type="file" accept="image/*" multiple onChange={handlePhotoSelect} className="hidden" />
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handlePhotoSelect}
+                className="hidden"
+              />
               <button
                 type="button"
                 onClick={() => photoInputRef.current?.click()}

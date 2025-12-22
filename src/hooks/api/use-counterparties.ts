@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { api as apiClient } from "../lib/api-client"
+import { api } from "../../lib/api-client"
 
 export type CounterpartyType = "supplier" | "manufacturer" | "insurer" | "individual"
 
@@ -24,7 +24,7 @@ export const useCounterparties = () => {
   return useQuery({
     queryKey: ["counterparties"],
     queryFn: async () => {
-      const response = await apiClient.get<Counterparty[]>("/counterparties")
+      const response = await api.get<Counterparty[]>("/counterparties")
       return response.data
     },
   })
@@ -34,7 +34,7 @@ export const useCounterparty = (id: number) => {
   return useQuery({
     queryKey: ["counterparties", id],
     queryFn: async () => {
-      const response = await apiClient.get<Counterparty>(`/counterparties/${id}`)
+      const response = await api.get<Counterparty>(`/counterparties/${id}`)
       return response.data
     },
     enabled: !!id,
@@ -45,7 +45,7 @@ export const useCreateCounterparty = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (data: CreateCounterpartyDto) => {
-      const response = await apiClient.post<Counterparty>("/counterparties", data)
+      const response = await api.post<Counterparty>("/counterparties", data)
       return response.data
     },
     onSuccess: () => {
@@ -58,7 +58,7 @@ export const useUpdateCounterparty = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: UpdateCounterpartyDto }) => {
-      const response = await apiClient.patch<Counterparty>(`/counterparties/${id}`, data)
+      const response = await api.patch<Counterparty>(`/counterparties/${id}`, data)
       return response.data
     },
     onSuccess: () => {
@@ -71,7 +71,7 @@ export const useDeleteCounterparty = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: number) => {
-      await apiClient.delete(`/counterparties/${id}`)
+      await api.delete(`/counterparties/${id}`)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["counterparties"] })

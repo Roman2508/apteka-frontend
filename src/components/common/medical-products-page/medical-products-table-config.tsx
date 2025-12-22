@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table"
-import { type MedicalProduct } from "@/hooks/use-medical-products"
+import { type MedicalProduct } from "@/hooks/api/use-medical-products"
 
 export const columns: ColumnDef<MedicalProduct>[] = [
   {

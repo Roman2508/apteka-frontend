@@ -2,17 +2,17 @@ import { useMemo, useRef } from "react"
 import { type ColumnDef } from "@tanstack/react-table"
 import { Download, HelpCircle, Upload } from "lucide-react"
 
-import { formatDate } from "@/helpers/format-date"
-import { ConfigurablePage, type ConfigurablePageRef } from "@/components/custom/configurable-page"
 import {
+  type Pharmacy,
+  usePharmacies,
   useCreatePharmacy,
   useDeletePharmacy,
-  usePharmacies,
   useUpdatePharmacy,
-  type Pharmacy,
-} from "@/hooks/use-pharmacies"
-import { useUsers } from "@/hooks/use-users"
-import { usePharmacyChains } from "@/hooks/use-pharmacy-chains"
+} from "@/hooks/api/use-pharmacies"
+import { useUsers } from "@/hooks/api/use-users"
+import { formatDate } from "@/helpers/format-date"
+import { usePharmacyChains } from "@/hooks/api/use-pharmacy-chains"
+import { ConfigurablePage, type ConfigurablePageRef } from "@/components/custom/configurable-page"
 
 const PharmaciesPage = () => {
   const { data: pharmacies, isLoading } = usePharmacies()
@@ -27,13 +27,12 @@ const PharmaciesPage = () => {
 
   const handleEntitySave = async (data: Pharmacy, mode: "create" | "edit" | "copy") => {
     try {
-      const { chain, ...rest } = data
+      const { id, ...rest } = data
       if (mode === "create" || mode === "copy") {
         // @ts-ignore
-        await createMutation.mutateAsync({ chainId: +chain, ...rest })
+        await createMutation.mutateAsync(rest)
       } else if (mode === "edit") {
-        // @ts-ignore    // chain === string
-        await updateMutation.mutateAsync({ id: data.id, data: { ...rest, chainId: +chain } })
+        await updateMutation.mutateAsync({ id, data: rest })
       }
     } catch (error) {
       console.error("Failed to save pharmacy chain:", error)
@@ -71,7 +70,6 @@ const PharmaciesPage = () => {
           },
         },
         cell: ({ row }) => {
-          console.log(row?.original?.chain)
           return row?.original?.chain?.name ? row?.original?.chain?.name : "-"
         },
       },

@@ -51,7 +51,7 @@ const MobileScanPage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-4">Сканування накладної</h1>
+        <h1 className="text-2xl font-bold text-center mb-4">Сканер</h1>
 
         {!isConnected && (
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">

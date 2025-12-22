@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useCreatePharmacyChain, useUpdatePharmacyChain, type PharmacyChain } from "@/hooks/use-pharmacy-chains"
+import { useCreatePharmacyChain, useUpdatePharmacyChain, type PharmacyChain } from "@/hooks/api/use-pharmacy-chains"
 
 const pharmacyChainSchema = z.object({
   name: z.string().min(1, "Назва обов'язкова"),
@@ -79,7 +79,12 @@ export const PharmacyChainModal = ({ open, onOpenChange, mode, chain }: Pharmacy
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Назва мережі *</Label>
-            <Input id="name" {...form.register("name")} placeholder="Введіть назву мережі" error={!!form.formState.errors.name} />
+            <Input
+              id="name"
+              {...form.register("name")}
+              placeholder="Введіть назву мережі"
+              error={!!form.formState.errors.name}
+            />
             {form.formState.errors.name && <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>}
           </div>
 
