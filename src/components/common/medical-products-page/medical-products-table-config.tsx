@@ -11,8 +11,12 @@ export const columns: ColumnDef<MedicalProduct>[] = [
     header: "Найменування",
   },
   {
-    accessorKey: "brand_name",
-    header: "Торгова марка",
+    accessorKey: "manufacturerId",
+    header: "Виробник",
+    cell: ({ row }) => {
+      console.log(row.original)
+      return row.original.manufacturer?.name
+    },
   },
   {
     accessorKey: "form",

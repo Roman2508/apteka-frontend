@@ -25,3 +25,14 @@ export const useDocuments = (filters?: ProfileFilters) => {
     enabled: !!type || !!status || hasDiscrepancy !== null || hasDiscrepancy !== undefined,
   })
 }
+
+export const useFullDocument = (id: string, type: string) => {
+  return useQuery({
+    queryKey: ["receiving-docs", { type, id }],
+    queryFn: async () => {
+      const response = await api.get(`/documents/${id}/${type}`)
+      return response.data
+    },
+    enabled: !!id || !!type,
+  })
+}

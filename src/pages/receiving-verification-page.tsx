@@ -1,57 +1,33 @@
-import { useParams, useNavigate, useSearchParams } from "react-router"
+import { toast } from "sonner"
+import { useForm } from "react-hook-form"
+import { type ColumnDef } from "@tanstack/react-table"
 import { useState, useEffect, useCallback } from "react"
+import { useParams, useNavigate, useSearchParams } from "react-router"
+
+import { api } from "@/lib/api-client"
 import { Button } from "@/components/ui/button"
-import { ConfigurablePage } from "../components/custom/configurable-page"
-import type { DynamicToolbarProps, ToolbarItem } from "../components/custom/dynamic-toolbar"
+import { formatDate } from "@/helpers/format-date"
 import { useScanStore } from "../stores/scan.store"
+import { ConfigurablePage } from "../components/custom/configurable-page"
+import { TemplateFormItem } from "@/components/custom/template-form-item"
+import type { DocumentItemType, DocumentType } from "@/types/document.types"
 import { AcceptanceModal } from "../components/custom/scan/acceptance-modal"
 import { DiscrepancyModal } from "../components/custom/scan/discrepancy-modal"
-import { api } from "@/lib/api-client"
-import { toast } from "sonner"
-import { type ColumnDef } from "@tanstack/react-table"
-
-// Types
-interface DocumentItem {
-  id: number
-  medicalProduct: {
-    id: number
-    name: string
-    dosage_value: string
-    dosage_unit: string
-    form: string
-    photos: { id: number; filePath: string }[]
-  }
-  barcode: string
-  batch_number: string
-  expiry_date: string
-  quantity_expected: number
-  quantity_scanned: number
-  quantity_accepted: number
-  price: number
-  is_discrepancy: boolean
-  discrepancies?: { id: number; reason: string; quantity: number }[]
-}
-
-interface DocumentDetails {
-  id: number
-  document_number: string
-  document_date: string
-  status: string
-  counterparty: { name: string }
-  warehouse: { name: string }
-  items: DocumentItem[]
-}
+import { transformMedicalProductForm } from "@/helpers/transform-medical-product-form"
+import type { DynamicToolbarProps, ToolbarItem } from "../components/custom/dynamic-toolbar"
 
 const ReceivingVerificationPage = () => {
   const { id } = useParams()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [document, setDocument] = useState<DocumentDetails | null>(null)
+
+  const [document, setDocument] = useState<DocumentType | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [globalFilter, setGlobalFilter] = useState("")
 
   // Scanning state
   const [isScanningMode, setIsScanningMode] = useState(false)
-  const [scannedItem, setScannedItem] = useState<DocumentItem | null>(null)
+  const [scannedItem, setScannedItem] = useState<DocumentItemType | null>(null)
 
   // Modals
   const [acceptanceModalOpen, setAcceptanceModalOpen] = useState(false)
@@ -87,7 +63,7 @@ const ReceivingVerificationPage = () => {
     if (!id) return
     setIsLoading(true)
     try {
-      const { data } = await api.get<DocumentDetails>(`/documents/${id}`)
+      const { data } = await api.get<DocumentType>(`/documents/${id}`)
       setDocument(data)
     } catch (e) {
       console.error(e)
@@ -184,8 +160,8 @@ const ReceivingVerificationPage = () => {
   }
 
   const mode = searchParams.get("mode") || "all"
-
-  const columns: ColumnDef<DocumentItem>[] = [
+  
+  const columns: ColumnDef<DocumentItemType>[] = [
     {
       accessorKey: "id",
       header: "ID",
@@ -201,29 +177,36 @@ const ReceivingVerificationPage = () => {
       header: "Назва товару",
       cell: ({ row }) => {
         const p = row.original.medicalProduct
-        return `${p.name} ${p.dosage_value || ""}${p.dosage_unit} (${p.form})`
+        return `${p.name} ${p.dosage_value || ""}${p.dosage_unit} (${transformMedicalProductForm(p.form)})`
       },
     },
     {
-      accessorKey: "batch_number",
-      header: "Серія",
+      accessorKey: "medicalProduct.manufacturer.name",
+      header: "Виробник",
+      cell: ({ row }) => {
+        const p = row.original.medicalProduct
+        return p?.manufacturer?.name ? p.manufacturer.name : "-"
+      },
     },
     {
-      accessorKey: "expiry_date",
-      header: "Термін придатності",
-      cell: ({ row }) => new Date(row.original.expiry_date).toLocaleDateString(),
+      accessorKey: "batch.batch_number",
+      header: "Серія",
+      cell: ({ row }) => {
+        const batch = row.original.batch
+        return batch?.batch_number ? `${batch.batch_number} ${batch.manufacture_date}` : "-"
+      },
     },
     {
       accessorKey: "quantity_expected",
-      header: "Очікувано",
+      header: "Кількість упаковок",
     },
     {
-      accessorKey: "quantity_scanned",
-      header: "Відскановано",
+      accessorKey: "medicalProduct.vat_rate",
+      header: "ПДВ",
     },
     {
-      accessorKey: "quantity_accepted",
-      header: "Прийнято",
+      accessorKey: "price",
+      header: "Ціна",
     },
   ]
 
@@ -271,52 +254,151 @@ const ReceivingVerificationPage = () => {
     ])
   }
 
+  const form = useForm<DocumentType>({})
+
   const topToolbar: DynamicToolbarProps = {
-    title: `Приймання: ${document?.document_number || "..."}`,
-    items: toolbarItems,
+    title: `Надходження товарів: №${document?.document_number || "..."} від ${formatDate(
+      document?.document_date,
+      "long",
+    )}`,
+    items: [
+      ...toolbarItems,
+      [
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mr-10 mt-4">
+              <TemplateFormItem
+                readOnly
+                type="text"
+                label="Номер"
+                placeholder="Номер"
+                name="document_number"
+                control={form.control}
+                staticValue={document?.document_number}
+                className="grid-cols-[80px_1fr] items-center py-0"
+              />
+            </div>
+          ),
+        },
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mt-4">
+              <TemplateFormItem
+                readOnly
+                type="date"
+                label="Від"
+                placeholder="Від"
+                name="document_date"
+                control={form.control}
+                className="grid-cols-[80px_1fr] items-center py-0"
+                staticValue={formatDate(document?.document_date, "input")}
+              />
+            </div>
+          ),
+        },
+      ],
+      [
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mr-10 mt-1">
+              <TemplateFormItem
+                readOnly
+                type="text"
+                label="Контрагент"
+                name="counterparty"
+                placeholder="Контрагент"
+                control={form.control}
+                staticValue={document?.counterparty.name}
+                className="grid-cols-[80px_1fr] items-center py-0"
+              />
+            </div>
+          ),
+        },
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mt-1">
+              <TemplateFormItem
+                readOnly
+                name="chain"
+                type="text"
+                label="Організація"
+                control={form.control}
+                placeholder="Організація"
+                staticValue={document?.pharmacy.chain.name}
+                className="grid-cols-[80px_1fr] items-center py-0"
+              />
+            </div>
+          ),
+        },
+      ],
+      [
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mr-10 mt-1 mb-4">
+              <TemplateFormItem
+                readOnly
+                type="text"
+                label="Склад"
+                name="warehouse"
+                placeholder="Склад"
+                control={form.control}
+                staticValue={document?.warehouse.name}
+                className="grid-cols-[80px_1fr] items-center py-0"
+              />
+            </div>
+          ),
+        },
+        {
+          type: "custom",
+          content: (
+            <div className="flex items-center gap-2 mt-1 mb-4">
+              <TemplateFormItem
+                readOnly
+                name="inn"
+                type="text"
+                label="Підрозділ"
+                placeholder="Підрозділ"
+                control={form.control}
+                className="grid-cols-[80px_1fr] items-center py-0"
+                staticValue={`Аптека ${document?.pharmacy.number} - ${document?.pharmacy.address}`}
+              />
+            </div>
+          ),
+        },
+      ],
+    ],
   }
+
+  const documentData =
+    document?.items.filter((item) => {
+      const mode = searchParams.get("mode")
+      if (mode === "accepted") return item.quantity_accepted > 0
+      if (mode === "discrepancy") return item.is_discrepancy
+      return true
+    }) || []
 
   return (
     <>
       <div className="h-[calc(100vh-65px)] flex flex-col">
-        {/* Helper Header Info */}
-        {document && (
-          <div className="bg-white p-4 grid grid-cols-4 gap-4 border-b text-sm">
-            <div>
-              <span className="text-gray-500 block">Постачальник</span>
-              <span className="font-medium">{document.counterparty.name}</span>
-            </div>
-            <div>
-              <span className="text-gray-500 block">Склад</span>
-              <span className="font-medium">{document.warehouse.name}</span>
-            </div>
-            <div>
-              <span className="text-gray-500 block">Дата</span>
-              <span className="font-medium">{new Date(document.document_date).toLocaleDateString()}</span>
-            </div>
-            <div>
-              <span className="text-gray-500 block">Статус</span>
-              <span className="font-medium">{document.status}</span>
-            </div>
+        {isScanningMode && (
+          <div className="bg-blue-50 p-2 mb-2 text-center text-blue-700 animate-in fade-in">
+            Очікування сканування товару...
           </div>
         )}
 
-        {isScanningMode && (
-          <div className="bg-blue-50 p-2 text-center text-blue-700 animate-in fade-in">Очікування сканування товару...</div>
-        )}
-
         <ConfigurablePage
-          data={
-            document?.items.filter((item) => {
-              const mode = searchParams.get("mode")
-              if (mode === "accepted") return item.quantity_accepted > 0
-              if (mode === "discrepancy") return item.is_discrepancy
-              return true
-            }) || []
-          }
+          data={documentData}
           columns={columns}
           topToolbar={topToolbar}
           isLoading={isLoading}
+          globalFilter={globalFilter}
+          setGlobalFilter={setGlobalFilter}
+          hideActions={["create", "copy", "edit", "mark_delete", "delete"]}
         />
       </div>
 

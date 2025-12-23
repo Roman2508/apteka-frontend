@@ -35,6 +35,7 @@ const ReceivingDocsPage = () => {
   const [usbScanModalOpen, setUsbScanModalOpen] = useState(false)
   const [verificationModalOpen, setVerificationModalOpen] = useState(false)
   const [verificationData, setVerificationData] = useState<any>(null)
+  const [selectedRow, setSelectedRow] = useState<any | null>(null)
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
@@ -138,6 +139,15 @@ const ReceivingDocsPage = () => {
     setVerificationModalOpen(true)
   }
 
+  const onSelectDocument = (row: any | null) => {
+    if (!row?.id) return
+    let type = "expected-deliveries"
+    if (searchParams.get("tab") === "quality-issues") type = "inbound-documents"
+    if (searchParams.get("tab") === "inbound-documents") type = "quality-issues"
+
+    navigate(`/receiving-docs/${type}/${row.id}`)
+  }
+
   const topToolbarConfig: DynamicToolbarProps = {
     title: "Документи прийому",
     hideActionsMenu: true,
@@ -198,7 +208,7 @@ const ReceivingDocsPage = () => {
         },
         {
           label: "Перевірити документ",
-          onClick: () => alert("Записати clicked"),
+          onClick: () => onSelectDocument(selectedRow),
           variant: "default",
         },
       ],
@@ -260,18 +270,9 @@ const ReceivingDocsPage = () => {
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
           // We pass empty array as default data, because data is controlled by tabs
-          onRowSelect={(row) => {
-            const tab = searchParams.get("tab")
-            let mode = "all"
-            if (tab === "inbound-documents") mode = "accepted"
-            if (tab === "quality-issues") mode = "discrepancy"
-            // Navigate to details page with mode
-            // We assume row has 'id'
-            if (row && (row as any).id) {
-              navigate(`/receiving-docs/${(row as any).id}?mode=${mode}`)
-            }
-          }}
+          onRowSelect={(row) => onSelectDocument(row)}
           isLoading={isLoading}
+          selectedRowProvider={setSelectedRow}
           defaultTab="expected-deliveries"
         />
       </div>

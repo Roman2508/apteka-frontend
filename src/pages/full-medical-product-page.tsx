@@ -1,42 +1,43 @@
 import * as z from "zod"
+import { toast } from "sonner"
 import { Plus, X, ArrowLeft } from "lucide-react"
-import { useForm, type SubmitHandler } from "react-hook-form"
 import { useState, useEffect, useRef } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm, type SubmitHandler } from "react-hook-form"
 import { useParams, useNavigate, useLocation } from "react-router"
-import { toast } from "sonner"
 
+import {
+  useProduct,
+  useDeletePhoto,
+  useUploadPhotos,
+  useCreateProduct,
+  useUpdateProduct,
+} from "../hooks/api/use-medical-products.ts"
+import { useCounterparties } from "@/hooks/api/use-counterparties.ts"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import { TemplateFormItem } from "../components/custom/template-form-item.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import {
-  useProduct,
-  useCreateProduct,
-  useUpdateProduct,
-  useUploadPhotos,
-  useDeletePhoto,
-} from "../hooks/api/use-medical-products.ts"
 
 // --- Schema Definition ---
 const productSchema = z.object({
   name: z.string().min(1, "Найменування обов'язкове"),
   brand_name: z.string().optional(),
   form: z.string().min(1, "Форма обов'язкова"),
-  dosage_value: z.number().optional(),
-  dosage_unit: z.string().optional(),
+  dosage_value: z.number().min(1, "Доза обов'язкова"),
+  dosage_unit: z.string().min(1, "Одиниця виміру обов'язкова"),
   barcode: z.string().optional(),
   inn: z.string().optional(),
   atc_code: z.string().optional(),
   registration_number: z.string().optional(),
   in_national_list: z.boolean().optional(),
   in_reimbursed_program: z.boolean().optional(),
-  subpackage_type: z.string().optional(),
-  subpackages_per_package: z.number().optional(),
-  shelf_life_value: z.number().optional(),
-  shelf_life_unit: z.string().optional(),
+  subpackages_per_package: z.number().min(1, "К-ть в упаковці обов'язкова"),
+  subpackage_type: z.string().min(1, "Тип в упаковці обов'язкова"),
+  shelf_life_value: z.number().min(1, "Срок придатності обов'язковий"),
+  shelf_life_unit: z.string().min(1, "Одиниця виміру обов'язкова"),
   retail_price: z.number().min(0, "Ціна обов'язкова"),
   vat_rate: z.coerce.number().optional(),
-  manufacturerId: z.number().optional(),
+  manufacturerId: z.string().optional(),
 })
 
 type ProductFormValues = z.infer<typeof productSchema>
@@ -56,6 +57,8 @@ const FullMedicalProductPage = () => {
   const [pendingPhotos, setPendingPhotos] = useState<File[]>([])
 
   const { data: product, isLoading: productLoading } = useProduct(productId || 0)
+  const { data: counterparties, isLoading: counterpartiesLoading } = useCounterparties()
+
   const createProduct = useCreateProduct()
   const updateProduct = useUpdateProduct()
   const uploadPhotos = useUploadPhotos()
@@ -68,6 +71,9 @@ const FullMedicalProductPage = () => {
       in_reimbursed_program: false,
       vat_rate: 7,
       form: "tablet",
+      dosage_unit: "mg",
+      subpackage_type: "blister",
+      shelf_life_unit: "years",
     },
   })
 
@@ -80,17 +86,17 @@ const FullMedicalProductPage = () => {
         brand_name: copyFromProduct.brand_name || "",
         form: copyFromProduct.form || "tablet",
         dosage_value: copyFromProduct.dosage_value ? Number(copyFromProduct.dosage_value) : undefined,
-        dosage_unit: copyFromProduct.dosage_unit || "",
+        dosage_unit: copyFromProduct.dosage_unit || "mg",
         barcode: copyFromProduct.barcode || "",
         inn: copyFromProduct.inn || "",
         atc_code: copyFromProduct.atc_code || "",
         registration_number: copyFromProduct.registration_number || "",
         in_national_list: copyFromProduct.in_national_list || false,
         in_reimbursed_program: copyFromProduct.in_reimbursed_program || false,
-        subpackage_type: copyFromProduct.subpackage_type || "",
+        subpackage_type: copyFromProduct.subpackage_type || "blister",
         subpackages_per_package: copyFromProduct.subpackages_per_package || undefined,
         shelf_life_value: copyFromProduct.shelf_life_value || undefined,
-        shelf_life_unit: copyFromProduct.shelf_life_unit || "",
+        shelf_life_unit: copyFromProduct.shelf_life_unit || "years",
         retail_price: Number(copyFromProduct.retail_price) || 0,
         vat_rate: copyFromProduct.vat_rate || 7,
         manufacturerId: copyFromProduct.manufacturerId || undefined,
@@ -101,21 +107,22 @@ const FullMedicalProductPage = () => {
       form.reset({
         name: product.name,
         brand_name: product.brand_name || "",
-        form: product.form,
+        form: product.form || "",
         dosage_value: product.dosage_value ? Number(product.dosage_value) : undefined,
-        dosage_unit: product.dosage_unit,
+        dosage_unit: product.dosage_unit || "mg",
         barcode: product.barcode || "",
         inn: product.inn || "",
         atc_code: product.atc_code || "",
         registration_number: product.registration_number || "",
         in_national_list: product.in_national_list,
         in_reimbursed_program: product.in_reimbursed_program,
-        subpackage_type: product.subpackage_type || "",
+        subpackage_type: product.subpackage_type || "blister",
         subpackages_per_package: product.subpackages_per_package || undefined,
         shelf_life_value: product.shelf_life_value || undefined,
-        shelf_life_unit: product.shelf_life_unit || "",
+        shelf_life_unit: product.shelf_life_unit || "years",
         retail_price: Number(product.retail_price),
         vat_rate: product.vat_rate,
+        // @ts-ignore
         manufacturerId: product.manufacturerId || undefined,
       })
     }
@@ -134,7 +141,12 @@ const FullMedicalProductPage = () => {
         toast.success("Товар успішно створено")
         navigate(`/medical-products/${newProduct.id}`)
       } else {
-        await updateProduct.mutateAsync({ id: productId!, data: data as any })
+        let _data = data
+        if (data.manufacturerId) {
+          // @ts-ignore
+          _data.manufacturerId = Number(data.manufacturerId)
+        }
+        await updateProduct.mutateAsync({ id: productId!, data: _data as any })
         toast.success("Товар успішно оновлено")
       }
     } catch (error: any) {
@@ -188,7 +200,7 @@ const FullMedicalProductPage = () => {
     setPendingPhotos((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const isLoading = productLoading || createProduct.isPending || updateProduct.isPending
+  const isLoading = productLoading || counterpartiesLoading || createProduct.isPending || updateProduct.isPending
 
   const topToolbarConfig: DynamicToolbarProps = {
     title: isCreateMode ? "Створення номенклатури" : "Редагування номенклатури",
@@ -220,7 +232,7 @@ const FullMedicalProductPage = () => {
       ],
     ],
   }
-  console.log(product)
+
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:7777"
 
   return (
@@ -244,6 +256,27 @@ const FullMedicalProductPage = () => {
             description="Точна назва на упаковці"
             type="text"
             placeholder="Введіть найменування"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="brand_name"
+            label="Торгова марка"
+            description="Торгова марка"
+            type="text"
+            placeholder="Введіть торгову марку"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="manufacturerId"
+            label="Виробник"
+            description="Виробник"
+            type="select"
+            placeholder="Оберіть виробника"
+            options={[...((counterparties && counterparties?.map((el) => ({ label: el.name, value: el.id }))) || [])]}
           />
 
           <TemplateFormItem
@@ -301,11 +334,85 @@ const FullMedicalProductPage = () => {
           <TemplateFormItem
             className="grid-cols-[300px_1fr]"
             control={form.control}
+            name="subpackages_per_package"
+            label="Кількість одиниць у упаковці"
+            description="Кількість окремих елементів у пакуванні препарату (таблеток, ампул, пластинок тощо)"
+            type="number"
+            placeholder="0"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="subpackage_type"
+            label="Тип окремої одиниці в упаковці"
+            description="Форма або вид одиниці всередині упаковки (таблетка, ампула, пластинка тощо)"
+            type="select"
+            placeholder="Оберіть тип в упаковці"
+            options={[
+              { label: "блістер", value: "blister" },
+              { label: "ампула", value: "ampoule" },
+              { label: "Саше", value: "sachet" },
+              { label: "пляшка", value: "bottle" },
+              { label: "флакон", value: "vial" },
+              { label: "тюбик", value: "tube" },
+              { label: "Інше", value: "piece" },
+            ]}
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="shelf_life_value"
+            label="Термін придатності"
+            description="Числове значення терміну придатності препарату від дати виготовлення"
+            type="number"
+            placeholder="0"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="shelf_life_unit"
+            label="Одиниця терміну придатності"
+            description="Одиниця виміру терміну придатності (дні, місяці, роки)"
+            type="select"
+            placeholder="Оберіть одиницю терміну придатності"
+            options={[
+              { label: "дні", value: "days" },
+              { label: "місяці", value: "months" },
+              { label: "роки", value: "years" },
+            ]}
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
             name="barcode"
             label="Штрих-код"
             description="EAN-13 або UPC"
             type="text"
             placeholder="Введіть штрих-код"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="atc_code"
+            label="ATC код"
+            description="Код за класифікацією АТС"
+            type="text"
+            placeholder="Введіть ATC код"
+          />
+
+          <TemplateFormItem
+            className="grid-cols-[300px_1fr]"
+            control={form.control}
+            name="registration_number"
+            label="Реєстраційний номер"
+            description="Номер, присвоєний державним органом при офіційній реєстрації ЛЗ"
+            type="text"
+            placeholder="Введіть реєстраційний номер"
           />
 
           <TemplateFormItem

@@ -15,6 +15,7 @@ export type FormItemType =
   | "number"
   | "password"
   | "checkbox"
+  | "date"
   | "select"
   | "async-select"
   | "file"
@@ -40,6 +41,7 @@ interface TemplateFormItemProps {
   placeholder?: string
   className?: string
   inputClassName?: string
+  staticValue?: any
 }
 
 export function TemplateFormItem({
@@ -53,8 +55,9 @@ export function TemplateFormItem({
   required,
   disabled,
   readOnly,
-  placeholder,
   className,
+  placeholder,
+  staticValue,
   inputClassName = "w-[300px]",
 }: TemplateFormItemProps) {
   // State for file previews
@@ -142,7 +145,7 @@ export function TemplateFormItem({
                   <Checkbox
                     id={name}
                     onChange={(e) => onChange(e.target.checked)}
-                    checked={value ?? false}
+                    checked={staticValue ?? value ?? false}
                     disabled={disabled || readOnly}
                     ref={field.ref}
                     name={field.name}
@@ -182,7 +185,7 @@ export function TemplateFormItem({
                             {asyncOptions.map((option) => (
                               <CommandItem
                                 key={option.value}
-                                value={String(option.label)}
+                                value={staticValue ?? option.value}
                                 onSelect={() => {
                                   onChange(option.value)
                                   setOpen(false)
@@ -239,7 +242,7 @@ export function TemplateFormItem({
                                 return (
                                   <CommandItem
                                     key={option.value}
-                                    value={String(option.label)}
+                                    value={staticValue ?? String(option.label)}
                                     onSelect={() => {
                                       let newValue
                                       if (isSelected) {
@@ -296,7 +299,7 @@ export function TemplateFormItem({
                   <Select
                     required={!!required}
                     onValueChange={onChange}
-                    value={value ? String(value) : undefined}
+                    value={staticValue ?? value ? String(value) : undefined}
                     disabled={disabled || readOnly}
                   >
                     <SelectTrigger className={cn("w-full", inputClassName)}>
@@ -376,10 +379,10 @@ export function TemplateFormItem({
                     type="number"
                     disabled={disabled}
                     readOnly={readOnly}
-                    value={value ?? ""}
                     required={!!required}
                     placeholder={placeholder}
                     className={inputClassName}
+                    value={staticValue ?? value ?? ""}
                     onChange={(e) => onChange(e.target.valueAsNumber)}
                     {...field}
                   />
@@ -394,10 +397,10 @@ export function TemplateFormItem({
                     disabled={disabled}
                     readOnly={readOnly}
                     onChange={onChange}
-                    value={value ?? ""}
                     required={!!required}
                     placeholder={placeholder}
                     className={inputClassName}
+                    value={staticValue ?? value ?? ""}
                     {...field}
                   />
                 )

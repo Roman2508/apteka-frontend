@@ -1,20 +1,21 @@
 import {
-  type ColumnDef,
   flexRender,
+  useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getFilteredRowModel,
-  useReactTable,
+  getPaginationRowModel,
+  type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
 } from "@tanstack/react-table"
-import { Button } from "@/components/ui/button"
-import { ChevronUp, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useState, type Dispatch, type SetStateAction } from "react"
-import { TableContextMenu, type TableAction } from "./table-actions"
 import { Trash2 } from "lucide-react"
+import { useState, type Dispatch, type SetStateAction } from "react"
+import { ChevronUp, ChevronDown, ArrowLeft, ArrowRight } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { TableContextMenu, type TableAction } from "./table-actions"
 
 interface TemplateTableProps<TData> {
   columns: ColumnDef<TData>[]
@@ -93,7 +94,7 @@ export function TemplateTable<TData>({
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className="bg-neutral-300 border [&>*:not(:last-child)]:border-r-neutral-800 px-2 py-1 text-left font-medium sticky top-[-1px] z-1"
+                    className="whitespace-nowrap bg-neutral-300 border [&>*:not(:last-child)]:border-r-neutral-800 px-2 py-1 text-left font-medium sticky top-[-1px] z-1"
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -125,7 +126,7 @@ export function TemplateTable<TData>({
                     className={cn(
                       "border-b border-neutral-800 cursor-pointer hover:bg-white",
                       isSelected && "bg-primary-50",
-                      isMarked && "bg-destructive-100"
+                      isMarked && "bg-destructive-100",
                     )}
                     onClick={() => onRowSelect?.(row.original)}
                     onContextMenu={handleContextMenuOpen}
@@ -136,7 +137,7 @@ export function TemplateTable<TData>({
                         className={cn(
                           "not-last:border-r border-neutral-800 px-2 py-1",
                           isSelected && "bg-primary-50",
-                          isMarked && "bg-destructive-100"
+                          isMarked && "bg-destructive-100",
                         )}
                       >
                         <div className="flex items-center gap-2">

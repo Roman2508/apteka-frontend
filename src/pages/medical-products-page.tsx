@@ -1,15 +1,15 @@
-import { Plus, Upload, HelpCircle, Download } from "lucide-react"
-import { useState, useRef } from "react"
-import { toast } from "sonner"
-import { useNavigate } from "react-router"
 import axios from "axios"
+import { toast } from "sonner"
+import { useState, useRef } from "react"
+import { useNavigate } from "react-router"
+import { Plus, Upload, HelpCircle, Download } from "lucide-react"
 
 import refreshIcon from "../assets/icons/rotate.svg"
+import { ImportHelpModal } from "../components/modals/import-help-modal"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
 import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/api/use-medical-products.ts"
-import { ImportHelpModal } from "../components/modals/import-help-modal"
 
 const MedicalProductsPage = () => {
   const navigate = useNavigate()
@@ -46,9 +46,8 @@ const MedicalProductsPage = () => {
 
   const handleExport = async () => {
     try {
-      const response = await axios.get("http://localhost:7777/medical-products/export-excel", {
-        responseType: "blob",
-      })
+      const baseUrl = import.meta.env.BASE_URL || "http://localhost:7777"
+      const response = await axios.get(`${baseUrl}/medical-products/export-excel`, { responseType: "blob" })
 
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement("a")

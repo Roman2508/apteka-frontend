@@ -1,27 +1,27 @@
+import {
+  useMemo,
+  useState,
+  useEffect,
+  forwardRef,
+  useCallback,
+  useImperativeHandle,
+  type Dispatch,
+  type ReactNode,
+  type ForwardedRef,
+  type SetStateAction,
+} from "react"
 import { useSearchParams } from "react-router"
 import { type ColumnDef } from "@tanstack/react-table"
-import {
-  useState,
-  type Dispatch,
-  type SetStateAction,
-  useEffect,
-  useCallback,
-  type ReactNode,
-  useMemo,
-  forwardRef,
-  useImperativeHandle,
-  type ForwardedRef,
-} from "react"
 
 import { TemplateTable } from "./template-table"
 import { type TableAction } from "./table-actions"
-import { EntityFormModal, type FormFieldConfig } from "./entity-form-modal"
 import pencilIcon from "../../assets/icons/pencil.svg"
 import rotateIcon from "../../assets/icons/rotate.svg"
 import excludeIcon from "../../assets/icons/exclude.svg"
 import fileCopyIcon from "../../assets/icons/file-copy.svg"
 import circlePlusIcon from "../../assets/icons/circle-plus.svg"
 import fileExcludeIcon from "../../assets/icons/file-exclude.svg"
+import { EntityFormModal, type FormFieldConfig } from "./entity-form-modal"
 import { DynamicToolbar, type DynamicToolbarProps } from "./dynamic-toolbar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -52,13 +52,19 @@ export interface ConfigurablePageProps<TData> {
   onAction?: (action: string, row: TData | null, data: TData[]) => void
   /** Custom action handlers that override default behavior. Return false to prevent default action. */
   customActions?: Partial<Record<ActionId, CustomActionHandler<TData>>>
+  /** Array of action ids to hide (remove from UI). */
+  hideActions?: ActionId[]
   isLoading?: boolean
   children?: ReactNode
   onEntitySave?: (data: TData, mode: "create" | "edit" | "copy") => Promise<void> | void
+  /** Optional callback that receives the currently selected row whenever it changes. */
+  selectedRowProvider?: (row: TData | null) => void
 }
 
 export interface ConfigurablePageRef {
   openModal: (mode: "create" | "edit" | "copy") => void
+  /** Returns the currently selected row (or null if none). */
+  getSelectedRow: () => any | null
 }
 
 function deriveFormFields(columns: ColumnDef<any>[]): FormFieldConfig[] {
@@ -103,9 +109,11 @@ function ConfigurablePageInternal<TData>(
     defaultTab,
     onAction,
     customActions,
+    hideActions,
     isLoading = false,
     children,
     onEntitySave,
+    selectedRowProvider,
   }: ConfigurablePageProps<TData>,
   ref: ForwardedRef<ConfigurablePageRef>,
 ) {
@@ -124,6 +132,7 @@ function ConfigurablePageInternal<TData>(
       setModalMode(mode)
       setModalOpen(true)
     },
+    getSelectedRow: () => selectedRow,
   }))
 
   // Update local data when prop data changes
@@ -165,7 +174,11 @@ function ConfigurablePageInternal<TData>(
       // If no data, clear selection
       setSelectedRow(null)
     }
-  }, [tableData, selectedRow, activeTabConfig, tabs])
+    // Notify external provider if supplied
+    if (selectedRowProvider) {
+      selectedRowProvider(selectedRow)
+    }
+  }, [tableData, selectedRow, activeTabConfig, tabs, selectedRowProvider])
 
   // Reset marked rows when tab changes
   useEffect(() => {
@@ -311,6 +324,12 @@ function ConfigurablePageInternal<TData>(
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleAction])
 
+  // Compute visible actions based on hideActions prop
+  const visibleActions = useMemo(() => {
+    if (!hideActions) return defaultActions
+    return defaultActions.filter((a) => !hideActions.includes(a.id as ActionId))
+  }, [defaultActions, hideActions])
+
   // Helper to render the table content
   const renderTableContent = (data: any[], columns: ColumnDef<any>[], toolbarConfig?: DynamicToolbarProps) => {
     const visibleColumns = columns.filter((col) => !(col.meta as any)?.hideInTable)
@@ -318,7 +337,7 @@ function ConfigurablePageInternal<TData>(
     return (
       <div className="flex-1 flex flex-col min-h-0 gap-2">
         {toolbarConfig && (
-          <DynamicToolbar {...toolbarConfig} actions={defaultActions} actionsMenuDisabled={!selectedRow} />
+          <DynamicToolbar {...toolbarConfig} actions={visibleActions} actionsMenuDisabled={!selectedRow} />
         )}
 
         {!!visibleColumns.length && (
@@ -334,7 +353,7 @@ function ConfigurablePageInternal<TData>(
             defaultPageSize={20}
             globalFilter={globalFilter}
             setGlobalFilter={setGlobalFilter}
-            actions={defaultActions}
+            actions={visibleActions}
             markedRows={markedRows}
             isLoading={isLoading}
           />
@@ -360,7 +379,7 @@ function ConfigurablePageInternal<TData>(
           <DynamicToolbar
             {...topToolbar}
             className="mb-2"
-            actions={defaultActions}
+            actions={visibleActions}
             actionsMenuDisabled={!selectedRow}
           />
         )}

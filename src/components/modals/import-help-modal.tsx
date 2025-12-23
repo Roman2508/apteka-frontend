@@ -10,17 +10,21 @@ export const ImportHelpModal = ({ open, onOpenChange }: ImportHelpModalProps) =>
   const columns = [
     { name: "Найменування", required: true, description: "Назва товару" },
     { name: "Торгова марка", required: false, description: "Бренд виробника" },
-    { name: "Форма_випуску", required: false, description: "Таблетки, ампули, тощо" },
-    { name: "Дозування", required: false, description: "Числове значення (напр. 500)" },
-    { name: "Одиниця_виміру", required: false, description: "mg, ml, g, тощо" },
-    { name: "Штрихкод", required: false, description: "EAN-13 або інший" },
+    { name: "Форма", required: true, description: "Форма випуску (таблетки, ампули, тощо)" },
+    { name: "Доза", required: true, description: "Числове значення (напр. 500)" },
+    { name: "Одиниця дози", required: true, description: "mg, ml, g, тощо" },
     { name: "МНН", required: false, description: "Міжнародна непатентована назва" },
-    { name: "Код_ATC", required: false, description: "Анатомічно-терапевтично-хімічна класифікація" },
-    { name: "Номер_реєстрації", required: false, description: "Номер реєстраційного посвідчення" },
-    { name: "Нац_перелік", required: false, description: "Так/Ні" },
-    { name: "Доступні_ліки", required: false, description: "Так/Ні" },
-    { name: "Роздрібна_ціна", required: false, description: "Ціна за одиницю" },
-    { name: "ПДВ", required: false, description: "Ставка податку (7 або 20)" },
+    { name: "ATC", required: false, description: "Анатомічно-терапевтично-хімічна класифікація" },
+    { name: "Реєстрація", required: false, description: "Номер реєстраційного посвідчення" },
+    { name: "Нац. перелік", required: false, description: "Так/Ні" },
+    { name: "Доступні ліки", required: false, description: "Так/Ні" },
+    { name: "Кількість в упаковці", required: true, description: "Числове значення" },
+    { name: "Тип упаковки", required: true, description: "Тип в упаковці (блістери, ампули, тощо" },
+    { name: "Термін придатності", required: true, description: "Числове значення" },
+    { name: "Одиниця виміру терміну придатності", required: true, description: "Одиниця виміру (дні, місяці, роки)" },
+    { name: "Ціна", required: true, description: "Ціна за одиницю" },
+    { name: "ПДВ", required: true, description: "Ставка податку (7 або 20)" },
+    { name: "Виробник", required: false, description: "ID виробника" },
   ]
 
   return (
@@ -29,8 +33,8 @@ export const ImportHelpModal = ({ open, onOpenChange }: ImportHelpModalProps) =>
         <DialogHeader>
           <DialogTitle>Інструкція з імпорту товарів</DialogTitle>
           <DialogDescription>
-            Для завантаження товарів підготуйте файл у форматі .xlsx або .xls з наступними колонками. Перший рядок файлу має
-            містити заголовки колонок.
+            Для завантаження товарів підготуйте файл у форматі .xlsx або .xls з наступними колонками. Перший рядок файлу
+            має містити заголовки колонок.
           </DialogDescription>
         </DialogHeader>
 

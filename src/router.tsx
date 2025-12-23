@@ -49,7 +49,7 @@ export const router = createBrowserRouter([
             element: <ReceivingDocsPage />,
           },
           {
-            path: "/receiving-docs/:id",
+            path: "/receiving-docs/:type/:id",
             element: <ReceivingVerificationPage />,
           },
 
