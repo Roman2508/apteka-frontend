@@ -1,10 +1,16 @@
 "use client"
 
 import { useEffect } from "react"
-import { useForm, type DefaultValues, type SubmitHandler, type FieldValues } from "react-hook-form"
+import {
+  useForm,
+  type DefaultValues,
+  type SubmitHandler,
+  type FieldValues,
+  type UseFormSetValue,
+} from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import { TemplateFormItem, type Option, type FormItemType } from "./template-form-item"
+import { TemplateFormItem, type Option, type FormItemType, type CustomRenderProps } from "./template-form-item"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 export interface FormFieldConfig {
@@ -18,9 +24,10 @@ export interface FormFieldConfig {
   required?: boolean
   disabled?: boolean
   readonly?: boolean
+  render?: (props: CustomRenderProps) => React.ReactElement
 }
 
-export interface EntityFormModalProps<TData> {
+export interface EntityFormModalProps<TData extends FieldValues> {
   isOpen: boolean
   onClose: () => void
   mode: "create" | "edit" | "copy"
@@ -28,6 +35,11 @@ export interface EntityFormModalProps<TData> {
   onSave: (data: TData) => Promise<void> | void
   fields: FormFieldConfig[]
   isLoading?: boolean
+  onValuesChange?: (
+    values: TData,
+    info: { name?: string; type?: string },
+    context: { setValue: UseFormSetValue<TData> },
+  ) => void
 }
 
 export function EntityFormModal<TData extends FieldValues>({
@@ -38,11 +50,14 @@ export function EntityFormModal<TData extends FieldValues>({
   onSave,
   fields,
   isLoading = false,
+  onValuesChange,
 }: EntityFormModalProps<TData>) {
   const {
     control,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { isSubmitting },
   } = useForm<TData>({
     defaultValues: (defaultValues || {}) as DefaultValues<TData>,
@@ -63,6 +78,17 @@ export function EntityFormModal<TData extends FieldValues>({
       }
     }
   }, [isOpen, defaultValues, mode, reset])
+
+  // Watch for changes and trigger callback
+  useEffect(() => {
+    if (!onValuesChange) return
+
+    const subscription = watch((value, { name, type }) => {
+      onValuesChange(value as TData, { name: name as string, type }, { setValue })
+    })
+
+    return () => subscription.unsubscribe()
+  }, [watch, onValuesChange, setValue])
 
   const onSubmit: SubmitHandler<TData> = async (data) => {
     // Prepare payload: remove identifying fields when copying so backend
@@ -95,8 +121,6 @@ export function EntityFormModal<TData extends FieldValues>({
     }
   }
 
-  console.log("defaultValues", defaultValues)
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -119,6 +143,7 @@ export function EntityFormModal<TData extends FieldValues>({
               placeholder={field.placeholder}
               description={field.description}
               disabled={field.disabled || isLoading || isSubmitting}
+              render={field.render}
             />
           ))}
 

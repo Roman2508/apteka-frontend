@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { api } from "../../lib/api-client"
+import type { MedicalProductType } from "@/types/medical-product.types"
 
 export interface MedicalProduct {
   id: number
@@ -51,7 +52,7 @@ export const useProducts = () => {
   return useQuery({
     queryKey: ["medical-products"],
     queryFn: async () => {
-      const response = await api.get<MedicalProduct[]>("/medical-products")
+      const response = await api.get<MedicalProductType[]>("/medical-products")
       return response.data
     },
   })
@@ -62,7 +63,7 @@ export const useProduct = (id: number | string) => {
   return useQuery({
     queryKey: ["medical-products", id],
     queryFn: async () => {
-      const response = await api.get<MedicalProduct>(`/medical-products/${id}`)
+      const response = await api.get<MedicalProductType>(`/medical-products/${id}`)
       return response.data
     },
     enabled: !!id && id !== "create",
@@ -75,7 +76,7 @@ export const useCreateProduct = () => {
 
   return useMutation({
     mutationFn: async (data: CreateMedicalProductDto) => {
-      const response = await api.post<MedicalProduct>("/medical-products", data)
+      const response = await api.post<MedicalProductType>("/medical-products", data)
       return response.data
     },
     onSuccess: () => {
@@ -90,7 +91,7 @@ export const useUpdateProduct = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<CreateMedicalProductDto> }) => {
-      const response = await api.patch<MedicalProduct>(`/medical-products/${id}`, data)
+      const response = await api.patch<MedicalProductType>(`/medical-products/${id}`, data)
       return response.data
     },
     onSuccess: (_, variables) => {

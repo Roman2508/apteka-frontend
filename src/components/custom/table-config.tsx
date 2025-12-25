@@ -3,6 +3,10 @@ import { ChevronRight, Folder } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { type ColumnDef } from "@tanstack/react-table"
 
+/* Видалити !!! */
+/* Видалити !!! */
+/* Видалити !!! */
+
 export type Counterparty = {
   id: string
   code: string
@@ -269,7 +273,6 @@ export const data: Counterparty[] = [
     type: "Постачальник",
     active: true,
   },
-
 ]
 
 export const columns: ColumnDef<Counterparty>[] = [

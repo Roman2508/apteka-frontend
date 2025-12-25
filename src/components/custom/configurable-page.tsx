@@ -11,6 +11,7 @@ import {
   type SetStateAction,
 } from "react"
 import { useSearchParams } from "react-router"
+import { type FieldValues, type UseFormSetValue } from "react-hook-form"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { TemplateTable } from "./template-table"
@@ -38,7 +39,7 @@ export type ActionId = "create" | "copy" | "edit" | "mark_delete" | "delete" | "
 
 export type CustomActionHandler<TData> = (row: TData | null, data: TData[]) => boolean | void
 
-export interface ConfigurablePageProps<TData> {
+export interface ConfigurablePageProps<TData extends FieldValues> {
   data?: TData[]
   columns?: ColumnDef<TData>[]
   formFields?: FormFieldConfig[]
@@ -59,6 +60,12 @@ export interface ConfigurablePageProps<TData> {
   onEntitySave?: (data: TData, mode: "create" | "edit" | "copy") => Promise<void> | void
   /** Optional callback that receives the currently selected row whenever it changes. */
   selectedRowProvider?: (row: TData | null) => void
+  /** Optional callback triggered whenever form values change. */
+  onFormValuesChange?: (
+    values: TData,
+    info: { name?: string; type?: string },
+    context: { setValue: UseFormSetValue<TData> },
+  ) => void
 }
 
 export interface ConfigurablePageRef {
@@ -91,11 +98,12 @@ function deriveFormFields(columns: ColumnDef<any>[]): FormFieldConfig[] {
         required: meta?.form?.required,
         disabled: meta?.form?.disabled,
         readonly: meta?.form?.readonly,
+        render: meta?.form?.render,
       }
     })
 }
 
-function ConfigurablePageInternal<TData>(
+function ConfigurablePageInternal<TData extends FieldValues>(
   {
     data: defaultData = [],
     columns: defaultColumns = [],
@@ -114,6 +122,7 @@ function ConfigurablePageInternal<TData>(
     children,
     onEntitySave,
     selectedRowProvider,
+    onFormValuesChange,
   }: ConfigurablePageProps<TData>,
   ref: ForwardedRef<ConfigurablePageRef>,
 ) {
@@ -372,6 +381,7 @@ function ConfigurablePageInternal<TData>(
         onSave={handleSave}
         fields={activeFormFields}
         isLoading={isLoading}
+        onValuesChange={onFormValuesChange as any}
       />
 
       <div className="h-full flex flex-col">
@@ -417,6 +427,6 @@ function ConfigurablePageInternal<TData>(
 }
 
 // Fixed forwardRef type assertion
-export const ConfigurablePage = forwardRef(ConfigurablePageInternal) as <TData>(
+export const ConfigurablePage = forwardRef(ConfigurablePageInternal) as <TData extends FieldValues>(
   props: ConfigurablePageProps<TData> & { ref?: ForwardedRef<ConfigurablePageRef> },
 ) => ReturnType<typeof ConfigurablePageInternal>

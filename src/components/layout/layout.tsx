@@ -1,7 +1,7 @@
 import { type FC, type PropsWithChildren } from "react"
 
-import { SidebarTree } from "../custom/main-sidebar/main-sidebar"
 import { Header } from "./header"
+import { SidebarTree } from "../custom/main-sidebar/main-sidebar"
 
 const Layout: FC<PropsWithChildren> = ({ children }) => {
   return (

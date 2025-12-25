@@ -78,6 +78,7 @@ const ReceivingVerificationPage = () => {
   }, [fetchDocument])
 
   const handleScan = async (data: any) => {
+    console.log(data)
     // Data expected: { batch_id: string, quantity: number }
     if (!document || !id) return
 

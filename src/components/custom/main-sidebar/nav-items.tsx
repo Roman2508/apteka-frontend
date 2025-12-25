@@ -14,7 +14,7 @@ export const NAV_ITEMS = [
       {
         title: "Роздрібний продажі",
         links: [
-          { path: "", label: "Реєстрація продажів", isDisabled: true },
+          { path: "/sale-registration", label: "Реєстрація продажів", isDisabled: false },
           { path: "", label: "Чеки ККМ", isDisabled: true },
         ],
       },
@@ -216,6 +216,7 @@ export const NAV_ITEMS = [
           { path: "/medical-products", label: "Номенклатура", isDisabled: false },
           { path: "", label: "Створити накладну", isDisabled: true },
           { path: "/counterparties", label: "Контрагенти", isDisabled: false },
+          { path: "/product-batches", label: "Партії товарів", isDisabled: false },
         ],
       },
       {

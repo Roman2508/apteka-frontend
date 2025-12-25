@@ -20,10 +20,22 @@ export type FormItemType =
   | "async-select"
   | "file"
   | "multi-select"
+  | "custom"
 
 export interface Option {
   label: string
   value: string | number
+}
+
+export interface CustomRenderProps {
+  onChange: (...event: any[]) => void
+  value: any
+  disabled?: boolean
+  readOnly?: boolean
+  placeholder?: string
+  name: string
+  ref: React.Ref<any>
+  onBlur: () => void
 }
 
 interface TemplateFormItemProps {
@@ -42,6 +54,7 @@ interface TemplateFormItemProps {
   className?: string
   inputClassName?: string
   staticValue?: any
+  render?: (props: CustomRenderProps) => React.ReactElement
 }
 
 export function TemplateFormItem({
@@ -58,6 +71,7 @@ export function TemplateFormItem({
   className,
   placeholder,
   staticValue,
+  render,
   inputClassName = "w-[300px]",
 }: TemplateFormItemProps) {
   // State for file previews
@@ -386,6 +400,13 @@ export function TemplateFormItem({
                     onChange={(e) => onChange(e.target.valueAsNumber)}
                     {...field}
                   />
+                )
+
+              case "custom":
+                return render ? (
+                  render({ onChange, value, disabled, readOnly, placeholder, ...field })
+                ) : (
+                  <div className="text-destructive">Custom render function is missing</div>
                 )
 
               default:

@@ -8,8 +8,8 @@ import refreshIcon from "../assets/icons/rotate.svg"
 import { ImportHelpModal } from "../components/modals/import-help-modal"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
-import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
 import { useProducts, useDeleteProduct, useImportExcel } from "../hooks/api/use-medical-products.ts"
+import { columns } from "../components/common/medical-products-page/medical-products-table-config.tsx"
 
 const MedicalProductsPage = () => {
   const navigate = useNavigate()

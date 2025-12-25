@@ -29,10 +29,10 @@ const MobileScanPage = () => {
       const scannedData = JSON.parse(result.text)
 
       // Validate expected structure
-      if (!scannedData.code || !scannedData.counterpartyId || !scannedData.count || !scannedData.totalPrice) {
-        setScanError("Невірний формат QR коду")
-        return
-      }
+      // if (!scannedData.code || !scannedData.counterpartyId || !scannedData.count || !scannedData.totalPrice) {
+      //   setScanError("Невірний формат QR коду")
+      //   return
+      // }
 
       // Send data via WebSocket
       sendScanData(scannedData)
@@ -46,7 +46,9 @@ const MobileScanPage = () => {
     }
   }
 
-  const isPcReady = pcStatus?.location?.includes("/receiving-docs") && pcStatus?.location?.includes("tab=expected-deliveries")
+  const isPcReady =
+    (pcStatus?.location?.includes("/receiving-docs") && pcStatus?.location?.includes("tab=expected-deliveries")) ||
+    pcStatus?.location?.includes("receiving-docs/expected-deliveries/")
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
@@ -74,7 +76,9 @@ const MobileScanPage = () => {
           </div>
         )}
 
-        {scanError && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{scanError}</div>}
+        {scanError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{scanError}</div>
+        )}
 
         <div className="flex justify-center mb-4">
           <BarcodeScanner
