@@ -12,7 +12,7 @@ export const NAV_ITEMS = [
     icon: cashRegisterImage,
     items: [
       {
-        title: "Роздрібний продажі",
+        title: "Роздрібні продажі",
         links: [
           { path: "/sale-registration", label: "Реєстрація продажів", isDisabled: false },
           { path: "", label: "Чеки ККМ", isDisabled: true },
