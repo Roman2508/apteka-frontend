@@ -67,6 +67,7 @@ export const useCreateExpectedDeliveries = () => {
     },
     onSuccess: () => {
       toast.success("Накладну збережено!")
+      // revalidate не працює, можливо проблема в hasDiscrepancy
       queryClient.invalidateQueries({
         queryKey: ["receiving-docs", { type: "incoming", status: "in_progress" }],
       })
@@ -84,6 +85,7 @@ export const useDeleteExpectedDeliveries = () => {
     },
     onSuccess: () => {
       toast.success("Накладну видалено!")
+      // revalidate не працює, можливо проблема в hasDiscrepancy
       queryClient.invalidateQueries({
         queryKey: ["receiving-docs", { type: "incoming", status: "in_progress" }],
       })

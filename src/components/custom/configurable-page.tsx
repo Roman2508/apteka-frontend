@@ -266,54 +266,57 @@ function ConfigurablePageInternal<TData extends FieldValues>(
     [selectedRow, tableData, markedRows, onAction, customActions],
   )
 
-  const defaultActions: TableAction[] = [
-    {
-      id: "create",
-      label: "Створити",
-      icon: <img width={16} src={circlePlusIcon} alt="create" />,
-      shortcut: "Ins",
-      onClick: () => handleAction("create"),
-    },
-    {
-      id: "copy",
-      label: "Скопіювати",
-      icon: <img width={16} src={fileCopyIcon} alt="copy" />,
-      shortcut: "F9",
-      onClick: () => handleAction("copy"),
-      disabled: !selectedRow,
-    },
-    {
-      id: "edit",
-      label: "Змінити",
-      icon: <img width={16} src={pencilIcon} alt="edit" />,
-      shortcut: "F2",
-      onClick: () => handleAction("edit"),
-      disabled: !selectedRow,
-    },
-    {
-      id: "mark_delete",
-      label: "Відмітити для вилучення / Зняти позначку",
-      icon: <img width={16} src={fileExcludeIcon} alt="mark" />,
-      shortcut: "Del",
-      onClick: () => handleAction("mark_delete"),
-      disabled: !selectedRow,
-    },
-    {
-      id: "delete",
-      label: "Вилучити",
-      icon: <img width={16} src={excludeIcon} alt="delete" />,
-      shortcut: "Shift+Del",
-      onClick: () => handleAction("delete"),
-      disabled: !selectedRow && markedRows.size === 0,
-    },
-    {
-      id: "refresh",
-      label: "Оновити",
-      icon: <img width={16} src={rotateIcon} alt="refresh" />,
-      shortcut: "F5",
-      onClick: () => handleAction("refresh"),
-    },
-  ]
+  const defaultActions: TableAction[] = useMemo(
+    () => [
+      {
+        id: "create",
+        label: "Створити",
+        icon: <img width={16} src={circlePlusIcon} alt="create" />,
+        shortcut: "Ins",
+        onClick: () => handleAction("create"),
+      },
+      {
+        id: "copy",
+        label: "Скопіювати",
+        icon: <img width={16} src={fileCopyIcon} alt="copy" />,
+        shortcut: "F9",
+        onClick: () => handleAction("copy"),
+        disabled: !selectedRow,
+      },
+      {
+        id: "edit",
+        label: "Змінити",
+        icon: <img width={16} src={pencilIcon} alt="edit" />,
+        shortcut: "F2",
+        onClick: () => handleAction("edit"),
+        disabled: !selectedRow,
+      },
+      {
+        id: "mark_delete",
+        label: "Відмітити для вилучення / Зняти позначку",
+        icon: <img width={16} src={fileExcludeIcon} alt="mark" />,
+        shortcut: "Del",
+        onClick: () => handleAction("mark_delete"),
+        disabled: !selectedRow,
+      },
+      {
+        id: "delete",
+        label: "Вилучити",
+        icon: <img width={16} src={excludeIcon} alt="delete" />,
+        shortcut: "Shift+Del",
+        onClick: () => handleAction("delete"),
+        disabled: !selectedRow && markedRows.size === 0,
+      },
+      {
+        id: "refresh",
+        label: "Оновити",
+        icon: <img width={16} src={rotateIcon} alt="refresh" />,
+        shortcut: "F5",
+        onClick: () => handleAction("refresh"),
+      },
+    ],
+    [selectedRow, markedRows, handleAction],
+  )
 
   // Keyboard shortcuts
   useEffect(() => {

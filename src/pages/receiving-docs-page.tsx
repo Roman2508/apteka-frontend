@@ -13,9 +13,14 @@ import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
 import { VerificationModal } from "../components/modals/scan/verification-modal.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { data as initialData, columns } from "../components/custom/table-config.tsx" // Keeping for columns definition if needed
-import { type CreateDocumentDto, useCreateExpectedDeliveries } from "@/hooks/api/use-documents.ts"
+import {
+  type CreateDocumentDto,
+  useCreateExpectedDeliveries,
+  useDeleteExpectedDeliveries,
+} from "@/hooks/api/use-documents.ts"
 import { inboundDocumentsTableColumns } from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
 import { expectedDeliveriesTableColumns } from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
+import type { DocumentType } from "@/types/document.types.ts"
 // import { useDocuments } from "@/hooks/api/use-documents.ts"
 
 // const getReceivingDocsParams = (tab: string | null) => {
@@ -45,6 +50,7 @@ const ReceivingDocsPage = () => {
   const { connect, disconnect, updateStatus, scannedData, clearScannedData } = useScanStore()
 
   const createExpectedDeliveries = useCreateExpectedDeliveries()
+  const deleteExpectedDeliveries = useDeleteExpectedDeliveries()
 
   // const { data: documents } = useDocuments(getReceivingDocsParams(searchParams.get("tab")))
 
@@ -165,7 +171,6 @@ const ReceivingDocsPage = () => {
   const topToolbarConfig: DynamicToolbarProps = {
     title: "Документи прийому",
     hideActionsMenu: true,
-    
   }
 
   const innerToolbarConfig: DynamicToolbarProps = {
@@ -289,6 +294,10 @@ const ReceivingDocsPage = () => {
           isLoading={isLoading}
           selectedRowProvider={setSelectedRow}
           defaultTab="expected-deliveries"
+          customActions={{
+            delete: (data: DocumentType) => deleteExpectedDeliveries.mutate(data.id),
+          }}
+          hideActions={["create", "copy", "edit", "mark_delete"]}
         />
       </div>
     </>
