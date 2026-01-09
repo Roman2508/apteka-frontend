@@ -1,23 +1,24 @@
-import { useState } from "react"
 import { X } from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import type { CreateDocumentDto } from "@/hooks/api/use-documents"
 
 interface VerificationModalProps {
   isOpen: boolean
   onClose: () => void
-  data: {
-    code: string
-    counterpartyId: string
-    count: number
-    totalPrice: number
-  }
+  data: CreateDocumentDto
+  // data: {
+  //   code: string
+  //   counterpartyId: string
+  //   count: number
+  //   totalPrice: number
+  // }
   onSave: () => void
 }
 
-/* 
-QR CODE DATA EXAMPLE:
+/*
+QR CODE DATA EXAMPLE (не актуально):
 {
   "code": "00006894",
   "counterpartyId": "ТОВ БаДМ",
@@ -25,6 +26,27 @@ QR CODE DATA EXAMPLE:
   "totalPrice": 1355
 }
 */
+
+/* QR CODE DATA EXAMPLE:
+  {
+    "code": 2485353,
+    "counterpartyId": 1,
+    "counterpartyName": "ТОВ БаДМ",
+    "count": 4,
+    "totalPrice": 1300,
+    "userId": 4,
+    "items": [
+      {
+        "id": 1, === product id
+        "count": 4,
+        "price": 1300,
+        "expiry_date": "12.12.2027",
+        "bartcode": "44839438934",
+        "batch_number": "132"
+        "batchId": 1
+      }
+    ]
+  } */
 
 export const VerificationModal = ({ isOpen, onClose, data, onSave }: VerificationModalProps) => {
   if (!isOpen) return null
@@ -46,17 +68,17 @@ export const VerificationModal = ({ isOpen, onClose, data, onSave }: Verificatio
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Постачальник</label>
-            <Input value={data.counterpartyId} readOnly className="mt-1" />
+            <label className="text-sm font-medium text-gray-700">Контрагент</label>
+            <Input value={data.counterpartyName} readOnly className="mt-1" />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Кількість</label>
+            <label className="text-sm font-medium text-gray-700">Кількість найменувань</label>
             <Input value={data.count} readOnly className="mt-1" />
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Сума</label>
+            <label className="text-sm font-medium text-gray-700">Загальна сума</label>
             <Input value={data.totalPrice.toFixed(2)} readOnly className="mt-1" />
           </div>
         </div>
@@ -65,6 +87,7 @@ export const VerificationModal = ({ isOpen, onClose, data, onSave }: Verificatio
           <Button onClick={onClose} variant="outline" className="flex-1">
             Скасувати
           </Button>
+
           <Button onClick={onSave} variant="primary" className="flex-1">
             Зберегти
           </Button>

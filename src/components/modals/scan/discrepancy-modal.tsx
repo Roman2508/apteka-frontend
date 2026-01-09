@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { Input } from "@/components/ui/input"
-import { TemplateModal } from "../template-modal/template-modal"
+import { TemplateModal } from "../../custom/template-modal/template-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface DiscrepancyModalProps {
@@ -91,7 +91,13 @@ export const DiscrepancyModal = ({ isOpen, onClose, item, onSubmit }: Discrepanc
                 {
                   type: "text",
                   label: "Коментар",
-                  content: <Input value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Опишіть деталі..." />,
+                  content: (
+                    <Input
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder="Опишіть деталі..."
+                    />
+                  ),
                 },
               ],
             },

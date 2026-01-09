@@ -1,8 +1,9 @@
 import * as React from 'react'
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Folder, ChevronRight } from 'lucide-react'
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+
 import { cn } from '@/lib/utils'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface DataTableProps<TData> {
   columns: ColumnDef<TData>[]

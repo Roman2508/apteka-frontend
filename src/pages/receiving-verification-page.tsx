@@ -11,8 +11,8 @@ import { useScanStore } from "../stores/scan.store"
 import { ConfigurablePage } from "../components/custom/configurable-page"
 import { TemplateFormItem } from "@/components/custom/template-form-item"
 import type { DocumentItemType, DocumentType } from "@/types/document.types"
-import { AcceptanceModal } from "../components/custom/scan/acceptance-modal"
-import { DiscrepancyModal } from "../components/custom/scan/discrepancy-modal"
+import { AcceptanceModal } from "../components/modals/scan/acceptance-modal"
+import { DiscrepancyModal } from "../components/modals/scan/discrepancy-modal"
 import { transformMedicalProductForm } from "@/helpers/transform-medical-product-form"
 import type { DynamicToolbarProps, ToolbarItem } from "../components/custom/dynamic-toolbar"
 
@@ -161,7 +161,7 @@ const ReceivingVerificationPage = () => {
   }
 
   const mode = searchParams.get("mode") || "all"
-  
+
   const columns: ColumnDef<DocumentItemType>[] = [
     {
       accessorKey: "id",

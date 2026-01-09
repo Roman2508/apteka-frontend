@@ -1,8 +1,9 @@
-import { type ReactNode, useState, useEffect, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { ArrowLeft, ArrowRight, Search } from "lucide-react"
+import { type ReactNode, useState, useEffect, useRef } from "react"
+
 import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useHistory } from "../../providers/history-provider"
 import { TableActionsMenu, type TableAction } from "./table-actions"
 
@@ -118,7 +119,7 @@ export function DynamicToolbar({
             </Button>
           </div>
 
-          <h1 className="text-lg">{title}</h1>
+          <h1 className="text-lg truncate text-ellipsis">{title}</h1>
         </div>
       )}
 

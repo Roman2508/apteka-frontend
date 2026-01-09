@@ -1,9 +1,12 @@
 import { useState } from "react"
-import { TemplateModal } from "../template-modal/template-modal"
+import { ArrowLeft, ArrowRight } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Card, CardContent } from "@/components/ui/card"
+import { TemplateModal } from "../../custom/template-modal/template-modal"
+import { transformMedicalProductForm } from "@/helpers/transform-medical-product-form"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 interface AcceptanceModalProps {
   isOpen: boolean
@@ -12,6 +15,11 @@ interface AcceptanceModalProps {
   onAccept: (qty?: number) => void
   onDiscrepancy: () => void
 }
+
+/* 
+QR CODE DATA EXAMPLE:
+{ batch_id: string, quantity: number }
+*/
 
 export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy }: AcceptanceModalProps) => {
   const [selectedPhotos, setSelectedPhotos] = useState<number[]>([])
@@ -22,8 +30,8 @@ export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy
   }
 
   const p = item.medicalProduct
-  const productName = `${p.name} ${p.dosage_value || ""}${p.dosage_unit} (${p.form})`
-
+  const productName = `${p.name} ${p.dosage_value || ""}${p.dosage_unit} (${transformMedicalProductForm(p.form)})`
+  console.log("item", item)
   return (
     <TemplateModal
       title="Перевірка товару"
@@ -41,13 +49,23 @@ export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy
                 {
                   type: "custom",
                   label: "Назва",
-                  content: <div className="font-medium text-lg">{productName}</div>,
+                  content: <div className="font-medium">{productName}</div>,
                 },
                 {
                   type: "custom",
-                  label: "Штрихкод",
-                  content: <div className="font-medium">{item.barcode || "—"}</div>,
+                  label: "Деталі",
+                  content: (
+                    <div className="font-medium">
+                      {`${item.medicalProduct.subpackages_per_package} ${item.medicalProduct.subpackage_type} в упаковці` ||
+                        "—"}
+                    </div>
+                  ),
                 },
+                // {
+                //   type: "custom",
+                //   label: "Штрихкод",
+                //   content: <div className="font-medium">{item.barcode || "—"}</div>,
+                // },
               ],
             },
             {
@@ -57,13 +75,16 @@ export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy
                 {
                   type: "custom",
                   label: "Серія (очікувана)",
-                  content: <div className="font-medium text-blue-600">{item.batch_number}</div>,
+                  content: <div className="font-medium">{item.batch_number}</div>,
                 },
                 {
                   type: "custom",
-                  label: "Термін придатності",
+                  // мб кінцевий термін придатності?
+                  label: "Дата виробництва",
                   content: (
-                    <div className="font-medium">{item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : "—"}</div>
+                    <div className="font-medium">
+                      {item.expiry_date ? new Date(item.expiry_date).toLocaleDateString() : "—"}
+                    </div>
                   ),
                 },
               ],
@@ -101,29 +122,40 @@ export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy
                         <Carousel className="w-full max-w-md mx-auto">
                           <CarouselContent>
                             {p.photos.map((photo: any) => (
-                              <CarouselItem key={photo.id} className="basis-1/2 md:basis-1/3">
+                              <CarouselItem key={photo.id} /* className="basis-1/2 md:basis-1/3" */>
                                 <div
                                   className={`p-1 border-2 rounded-lg cursor-pointer transition-all ${
-                                    selectedPhotos.includes(photo.id) ? "border-primary shadow-md" : "border-transparent"
+                                    selectedPhotos.includes(photo.id)
+                                      ? "border-primary shadow-md"
+                                      : "border-transparent"
                                   }`}
                                   onClick={() => togglePhoto(photo.id)}
                                 >
                                   <Card>
                                     <CardContent className="flex aspect-square items-center justify-center p-2 relative">
                                       <img
-                                        src={`http://localhost:7777${photo.filePath}`}
                                         alt="Product"
-                                        className="object-cover w-full h-full rounded"
+                                        className="object-contain w-full h-full rounded"
+                                        src={`http://localhost:7777/${photo.filePath}`}
                                       />
-                                      <Checkbox checked={selectedPhotos.includes(photo.id)} className="absolute top-2 right-2" />
+                                      <Checkbox
+                                        checked={selectedPhotos.includes(photo.id)}
+                                        className="absolute top-2 right-2"
+                                      />
                                     </CardContent>
                                   </Card>
                                 </div>
                               </CarouselItem>
                             ))}
                           </CarouselContent>
-                          <CarouselPrevious />
-                          <CarouselNext />
+
+                          <CarouselPrevious variant="primary" className="p-0 !left-[-60px]">
+                            <ArrowLeft className="min-w-6 min-h-6" />
+                          </CarouselPrevious>
+
+                          <CarouselNext variant="primary" className="p-0 !right-[-60px]">
+                            <ArrowRight className="min-w-6 min-h-6" />
+                          </CarouselNext>
                         </Carousel>
                       </div>
                     ) : (
@@ -138,7 +170,8 @@ export const AcceptanceModal = ({ isOpen, onClose, item, onAccept, onDiscrepancy
       footer={{
         confirmText: `Прийняти${selectedPhotos.length > 0 ? ` (${selectedPhotos.length})` : " всі"}`,
         onConfirm: () => {
-          const qtyToAccept = selectedPhotos.length > 0 ? selectedPhotos.length : item.quantity_expected - item.quantity_scanned
+          const qtyToAccept =
+            selectedPhotos.length > 0 ? selectedPhotos.length : item.quantity_expected - item.quantity_scanned
           onAccept(qtyToAccept)
         },
         onCancel: onClose,

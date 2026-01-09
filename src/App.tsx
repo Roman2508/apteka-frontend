@@ -12,10 +12,7 @@ function App() {
   const [globalFilter, setGlobalFilter] = useState("")
   const [tableData, setTableData] = useState(initialData)
   const [isLoading, setIsLoading] = useState(false)
-  const [filters, setFilters] = useState({
-    status: "",
-    date: "",
-  })
+  const [filters, setFilters] = useState({ status: "", date: "" })
 
   // Mock backend request
   const mockFetchData = useCallback(async (currentFilters: typeof filters) => {
@@ -29,7 +26,7 @@ function App() {
     let filtered = [...initialData]
     if (currentFilters.status) {
       filtered = filtered.filter((item) =>
-        (item as any).status?.toLowerCase().includes(currentFilters.status.toLowerCase())
+        (item as any).status?.toLowerCase().includes(currentFilters.status.toLowerCase()),
       )
     }
     // Add more mock filtering logic here if needed

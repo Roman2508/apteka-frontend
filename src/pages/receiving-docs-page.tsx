@@ -1,17 +1,19 @@
-import { useSearchParams, useNavigate } from "react-router"
+import { toast } from "sonner"
 import { useState, useEffect, useCallback } from "react"
+import { useSearchParams, useNavigate } from "react-router"
 
+import { api } from "@/lib/api-client"
 import editIcon from "../assets/icons/pencil.svg"
 import { useScanStore } from "../stores/scan.store"
+import { useAuthStore } from "../stores/auth.store"
 import refreshIcon from "../assets/icons/rotate.svg"
 import createIcon from "../assets/icons/file-copy.svg"
-import { UsbScanModal } from "../components/custom/scan/usb-scan-modal"
+import { UsbScanModal } from "../components/modals/scan/usb-scan-modal.tsx"
 import { ConfigurablePage } from "../components/custom/configurable-page.tsx"
-import { VerificationModal } from "../components/custom/scan/verification-modal"
+import { VerificationModal } from "../components/modals/scan/verification-modal.tsx"
 import type { DynamicToolbarProps } from "../components/custom/dynamic-toolbar.tsx"
 import { data as initialData, columns } from "../components/custom/table-config.tsx" // Keeping for columns definition if needed
-import { api } from "@/lib/api-client"
-import { toast } from "sonner"
+import { type CreateDocumentDto, useCreateExpectedDeliveries } from "@/hooks/api/use-documents.ts"
 import { inboundDocumentsTableColumns } from "../components/common/receiving-docs-page/inbound-documents-table-config.tsx"
 import { expectedDeliveriesTableColumns } from "@/components/common/receiving-docs-page/expected-deliveries-table-config.tsx"
 // import { useDocuments } from "@/hooks/api/use-documents.ts"
@@ -39,7 +41,10 @@ const ReceivingDocsPage = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
+  const { user } = useAuthStore()
   const { connect, disconnect, updateStatus, scannedData, clearScannedData } = useScanStore()
+
+  const createExpectedDeliveries = useCreateExpectedDeliveries()
 
   // const { data: documents } = useDocuments(getReceivingDocsParams(searchParams.get("tab")))
 
@@ -121,7 +126,16 @@ const ReceivingDocsPage = () => {
     // }
   }, [searchParams /* , documents  */, fetchTabData])
 
-  const handleVerificationSave = () => {
+  const handleVerificationSave = (verificationData: CreateDocumentDto) => {
+    if (!user || !user.id) {
+      alert("Помилка!")
+    }
+    // Мініфікований JSON з QR-кода:
+    // {"code":346564,"counterpartyId":1,"counterpartyName":"ТОВ Фарма","count":6,"totalPrice":2912,"userId":2,"items":[{"id":1,"count":4,"price":78,"expiry_date":"2027-11-30 00:00:00","bartcode":"54789654","batch_number":"BT-H4RC4T","batchId":1},{"id":1,"count":2,"price":1300,"expiry_date":"2025-12-22 15:30:45.123","bartcode":"445675453","batch_number":"132","batchId":2}]}
+
+    const { counterpartyName, ...data } = verificationData
+    createExpectedDeliveries.mutateAsync({ ...data, userId: user.id })
+
     // Refresh current tab data
     // const currentTab = searchParams.get("tab")
     // fetchTabData(currentTab)
@@ -131,7 +145,7 @@ const ReceivingDocsPage = () => {
     setVerificationData(null)
     clearScannedData()
 
-    toast.success("Накладну збережено!")
+    // toast.success("Накладну збережено!")
   }
 
   const handleUsbScan = (data: any) => {
@@ -151,6 +165,7 @@ const ReceivingDocsPage = () => {
   const topToolbarConfig: DynamicToolbarProps = {
     title: "Документи прийому",
     hideActionsMenu: true,
+    
   }
 
   const innerToolbarConfig: DynamicToolbarProps = {
@@ -256,7 +271,7 @@ const ReceivingDocsPage = () => {
             clearScannedData()
           }}
           data={verificationData}
-          onSave={handleVerificationSave}
+          onSave={() => handleVerificationSave(verificationData)}
         />
       )}
 
@@ -282,7 +297,7 @@ const ReceivingDocsPage = () => {
 
 export default ReceivingDocsPage
 
-/* 
+/*
         <ConfigurablePage
            data={tableData}
           columns={columns}

@@ -180,10 +180,11 @@ const SaleRegistrationPage = () => {
   return (
     <>
       {/* <h1 className="text-lg mb-2">
-        Пташник Роман / 1984 каса / Зміна 1984-000664 від 26.12.2025 14:39:25 (Відкрита): 4:01 год
+        Пташник Роман / 
+        1984 каса / Зміна 1984-000664 від 26.12.2025 14:39:25 (Відкрита): 4:01 год
       </h1> */}
       <div className="h-[calc(100vh-65px)] flex gap-2">
-        <div className="flex-1 flex flex-col gap-4">
+        <div className="flex-1 flex flex-col gap-4 truncate">
           <ConfigurablePage
             ref={pageRef}
             data={productBatches}
