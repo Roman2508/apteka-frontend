@@ -11,22 +11,26 @@ import {
 } from "@/hooks/api/use-product-batches.ts"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import handIcon from "../assets/icons/hand-icon.png"
+import { useAuthStore } from "../stores/auth.store"
+import { useInventory } from "@/hooks/api/use-inventories.ts"
 import { useProducts } from "@/hooks/api/use-medical-products.ts"
-import alarmClockIcon from "../assets/icons/alarm-clock-icon.png"
 import { useCounterparties } from "@/hooks/api/use-counterparties.ts"
 import type { ProductBatchType } from "@/types/product-batch.types.ts"
 import type { MedicalProductType } from "@/types/medical-product.types.ts"
 import type { CustomRenderProps } from "@/components/custom/template-form-item.tsx"
 import { transformMedicalProductForm } from "@/helpers/transform-medical-product-form.ts"
 import { ConfigurablePage, type ConfigurablePageRef } from "../components/custom/configurable-page.tsx"
-
+import { SalesRegistrationSidebar } from "../components/common/sales-registration/sales-registration-sidebar.tsx"
 const SaleRegistrationPage = () => {
+  const user = useAuthStore((state) => state.user)
+
   const [globalFilter, setGlobalFilter] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRow, setSelectedRow] = useState<any | null>(null)
 
   const pageRef = useRef<ConfigurablePageRef>(null)
+  console.log("user", user)
+  const { data: inventory } = useInventory()
 
   const { data: medicalProducts } = useProducts()
   const { data: productBatches } = useProductBatches()
@@ -177,10 +181,13 @@ const SaleRegistrationPage = () => {
     [medicalProducts, counterparties],
   )
 
+  // №  Чек(назва,доза,батч,дата виробництва) Полиця Кількість Ціна(за 1) Знижка Сума(за всі)
+  // Номенклатура(назва, форма.вип., доза, контрагент) ПДВ Ціна(за 1) Доступно Остаток Полиця
+
   return (
     <>
       {/* <h1 className="text-lg mb-2">
-        Пташник Роман / 
+        Пташник Роман /
         1984 каса / Зміна 1984-000664 від 26.12.2025 14:39:25 (Відкрита): 4:01 год
       </h1> */}
       <div className="h-[calc(100vh-65px)] flex gap-2">
@@ -356,76 +363,7 @@ const SaleRegistrationPage = () => {
           />
         </div>
 
-        <div className="flex flex-col w-75 mt-20 h-[calc(100vh-135px)]">
-          <div className="flex-1">
-            <div className="bg-neutral-300 flex flex-col gap-2 w-full px-1 mb-2">
-              <div className="flex justify-between">
-                <span className="text-lg opacity-[0.8] ">До оплати</span>
-                <span className="text-lg font-bold">1132,20</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Знижка</span>
-                <span className="text-sm">0</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">бокуси</span>
-                <span className="text-sm">0</span>
-              </div>
-            </div>
-
-            <div className="bg-neutral-300 flex justify-center gap-2 w-full py-2 px-1 mb-2">
-              <Button variant="primary" size="sm" className="flex-1">
-                Рекомендація
-              </Button>
-              <Button size="sm" className="flex-1">
-                Розрахувати знижки
-              </Button>
-            </div>
-
-            <div className="bg-neutral-300 flex flex-col gap-2 w-full py-2 px-1 mb-6">
-              <div className="flex gap-1">
-                <Input placeholder="Номер телефону клієнта" className="flex-1 h-7" />
-                <Button size="icon" className="h-7">
-                  <X className="min-w-4" />
-                </Button>
-                <Button size="icon" className="h-7">
-                  <Copy className="min-w-3" />
-                </Button>
-              </div>
-
-              <div className="mr-1">
-                <Input placeholder="Лікар" className="flex-1 h-7" />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex-1">
-            <div className="bg-neutral-300 flex items-center gap-2 w-full p-2 mb-2">
-              <div className="flex justify-between font-bold">
-                <span className="text-sm">План: 27 682</span>
-              </div>
-
-              <div className="flex justify-between gap-1 font-bold">
-                <span className="text-sm">Факт: 3 622,26</span>
-                <span className="text-sm text-destructive-500">(-24 059,74)</span>
-              </div>
-            </div>
-
-            <div className="bg-neutral-300 flex gap-4 w-full p-2 mb-2">
-              <div className="flex flex-col gap-3">
-                <Button size="sm">Змінити користувача</Button>
-                <Button size="sm">Касова зміна</Button>
-                <Button size="sm">Переоцінки</Button>
-                <Button size="sm">Чеки ККМ</Button>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <img src={alarmClockIcon} alt="alarm clock icon" className="w-6 h-6 mt-0.5" />
-                <img src={handIcon} alt="hand icon" className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <SalesRegistrationSidebar />
       </div>
     </>
   )

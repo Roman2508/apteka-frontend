@@ -24,7 +24,7 @@ export const useLogin = () => {
         token: data.access_token,
         session: data.session,
       })
-      navigate("/")
+      navigate("/sale-registration")
     },
   })
 }

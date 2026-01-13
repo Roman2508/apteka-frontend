@@ -2,11 +2,14 @@ import { useEffect } from "react"
 import { Navigate, Outlet, useLocation } from "react-router"
 import { useAuthStore } from "../../stores/auth.store"
 import { useProfile } from "../../hooks/api/use-auth"
+import { usePharmacy } from "../../hooks/api/use-pharmacies"
+import { usePharmacyStore } from "../../stores/pharmacy.store"
 
 export const RequireAuth = () => {
   const token = useAuthStore((state) => state.token)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const setAuth = useAuthStore((state) => state.setAuth)
+  const setPharmacy = usePharmacyStore((state) => state.setPharmacy)
   const location = useLocation()
 
   // If no token, redirect immediately
@@ -27,16 +30,19 @@ const AuthCheck = ({ token, setAuth }: { token: string; setAuth: (data: any) => 
 
   useEffect(() => {
     if (data) {
-      // Assuming /auth/me returns the user object.
-      // We need to match the store's expected structure.
-      // If the API returns just the user, we might need to mock the session or adjust the store.
-      // For now, let's assume we can reconstruct enough to satisfy the store or that the API returns what we need.
-      // If data is just user:
-      setAuth({
-        user: data,
-        token: token,
-        session: { id: 0, loginAt: new Date().toISOString() }, // Mock session if not provided
-      })
+      const fetchData = async () => {
+        // Assuming /auth/me returns the user object.
+        // We need to match the store's expected structure.
+        // If the API returns just the user, we might need to mock the session or adjust the store.
+        // For now, let's assume we can reconstruct enough to satisfy the store or that the API returns what we need.
+        // If data is just user:
+        setAuth({
+          user: data,
+          token: token,
+          session: { id: 0, loginAt: new Date().toISOString() }, // Mock session if not provided
+        })
+        // const pharmacy = await usePharmacy(user)
+      }
     }
   }, [data, setAuth, token])
 
