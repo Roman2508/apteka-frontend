@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { Navigate, Outlet, useLocation } from "react-router"
-import { useAuthStore } from "../../stores/auth.store"
+
 import { useProfile } from "../../hooks/api/use-auth"
+import { useAuthStore } from "../../stores/auth.store"
 import { usePharmacy } from "../../hooks/api/use-pharmacies"
 import { usePharmacyStore } from "../../stores/pharmacy.store"
 
@@ -9,7 +10,7 @@ export const RequireAuth = () => {
   const token = useAuthStore((state) => state.token)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const setAuth = useAuthStore((state) => state.setAuth)
-  const setPharmacy = usePharmacyStore((state) => state.setPharmacy)
+  // const setPharmacy = usePharmacyStore((state) => state.setPharmacy)
   const location = useLocation()
 
   // If no token, redirect immediately
@@ -50,7 +51,8 @@ const AuthCheck = ({ token, setAuth }: { token: string; setAuth: (data: any) => 
     return <Navigate to="/auth" replace />
   }
 
-  if (isLoading || data) {
+  if (isLoading) {
+    // if (isLoading || data) {
     return (
       <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center">
         <div className="flex items-center gap-2">
@@ -59,6 +61,10 @@ const AuthCheck = ({ token, setAuth }: { token: string; setAuth: (data: any) => 
         </div>
       </div>
     )
+  }
+
+  if (data && data.id) {
+    return <Outlet />
   }
 
   return null

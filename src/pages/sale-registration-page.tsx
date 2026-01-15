@@ -1,5 +1,5 @@
-import { useState, useMemo, useRef } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { addDays, addMonths, addYears, parseISO } from "date-fns"
 import { Download, HelpCircle, Upload, RefreshCw, Printer, X, Copy } from "lucide-react"
 
@@ -12,25 +12,30 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuthStore } from "../stores/auth.store"
-import { useInventory } from "@/hooks/api/use-inventories.ts"
 import { useProducts } from "@/hooks/api/use-medical-products.ts"
+import { usePharmacyByUserId } from "@/hooks/api/use-pharmacies.ts"
 import { useCounterparties } from "@/hooks/api/use-counterparties.ts"
 import type { ProductBatchType } from "@/types/product-batch.types.ts"
 import type { MedicalProductType } from "@/types/medical-product.types.ts"
+import { useInventoriesByWarehouseId } from "@/hooks/api/use-inventories.ts"
 import type { CustomRenderProps } from "@/components/custom/template-form-item.tsx"
 import { transformMedicalProductForm } from "@/helpers/transform-medical-product-form.ts"
 import { ConfigurablePage, type ConfigurablePageRef } from "../components/custom/configurable-page.tsx"
 import { SalesRegistrationSidebar } from "../components/common/sales-registration/sales-registration-sidebar.tsx"
+
 const SaleRegistrationPage = () => {
   const user = useAuthStore((state) => state.user)
 
   const [globalFilter, setGlobalFilter] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRow, setSelectedRow] = useState<any | null>(null)
+  const [warehouseId, setWarehouseId] = useState<number | null>(null)
 
   const pageRef = useRef<ConfigurablePageRef>(null)
-  console.log("user", user)
-  const { data: inventory } = useInventory()
+
+  const { data: pharmacy } = usePharmacyByUserId(user?.id || 2)
+
+  const { data: inventory } = useInventoriesByWarehouseId(warehouseId)
 
   const { data: medicalProducts } = useProducts()
   const { data: productBatches } = useProductBatches()
@@ -181,9 +186,15 @@ const SaleRegistrationPage = () => {
     [medicalProducts, counterparties],
   )
 
+  useEffect(() => {
+    if (pharmacy) {
+      setWarehouseId(pharmacy?.warehouses[0]?.id)
+    }
+  }, [pharmacy])
+
   // №  Чек(назва,доза,батч,дата виробництва) Полиця Кількість Ціна(за 1) Знижка Сума(за всі)
   // Номенклатура(назва, форма.вип., доза, контрагент) ПДВ Ціна(за 1) Доступно Остаток Полиця
-
+  console.log(inventory)
   return (
     <>
       {/* <h1 className="text-lg mb-2">

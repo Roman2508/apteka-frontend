@@ -47,6 +47,18 @@ export const usePharmacy = (id: number | string) => {
   })
 }
 
+// Fetch single pharmacy by user id
+export const usePharmacyByUserId = (userId: number | string) => {
+  return useQuery({
+    queryKey: ["pharmacy", userId],
+    queryFn: async () => {
+      const response = await api.get<Pharmacy>(`/pharmacy/user/${userId}`)
+      return response.data
+    },
+    enabled: !!userId,
+  })
+}
+
 // Create pharmacy
 export const useCreatePharmacy = () => {
   const queryClient = useQueryClient()

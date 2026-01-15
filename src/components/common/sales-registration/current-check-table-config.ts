@@ -1,124 +1,107 @@
-import { type InventoryType } from "@/types/inventory.types"
+import { useMemo } from "react"
+import type { ColumnDef } from "@tanstack/react-table"
 
-// №  Чек(назва,доза,батч,дата виробництва) Полиця Кількість Ціна(за 1) Знижка Сума(за всі)
+import { type InventoryType } from "@/types/inventory.types"
+import { type MedicalProductType } from "@/types/medical-product.types"
+import { transformMedicalProductForm } from "@/utils/medical-product.utils"
+
 export const getCurrentCheckTableColumns = (): ColumnDef<InventoryType>[] => {
   return useMemo(
     () => [
       {
-        accessorKey: "productId",
+        accessorKey: "batch.product",
         header: "Чек",
         cell: ({ getValue }) => {
-          const productId = getValue<number>()
-          const product = medicalProducts?.find((p) => p.id === productId)
+          const product = getValue<MedicalProductType>()
           return product
             ? `${product.name} ${product.dosage_value || ""}${product.dosage_unit} (${transformMedicalProductForm(
                 product.form,
               )})`
             : "-"
         },
-        /*
-          warehouse: WarehouseType
-          warehouseId: number
-          batch: ProductBatchType
-          batchId: number
-          quantity: number
-          reserved_quantity: number
-        } */
-        meta: {
-          form: {
-            type: "async-select",
-            required: true,
-            placeholder: "Виберіть товар",
-            options: [
-              ...(medicalProducts?.map((p) => ({
-                value: p.id,
-                label: `${p.name} ${p.dosage_value || ""}${p.dosage_unit} (${transformMedicalProductForm(p.form)})`,
-              })) || []),
-            ],
-          },
-        },
       },
       {
-        accessorKey: "supplierId",
+        /*
+        [
+          {
+            "id": 1,
+            "warehouseId": 1,
+        "batchId": 2,
+        "quantity": 2,
+        "reserved_quantity": 0,
+        shelfPlacementId: null,
+        shelfPlacement: {id: 1, name: "Полиця 1"},
+        "updatedAt": "2026-01-08T15:32:30.318Z",
+        "batch": {
+            "id": 2,
+            "productId": 1,
+            "supplierId": 1,
+            "batch_number": "132",
+            "manufacture_date": null,
+            "expiry_date": "2025-12-22T15:30:45.123Z",
+            "purchase_price": "1300",
+            "createdAt": "2026-01-08T15:32:16.893Z",
+            "product": {
+                "id": 1,
+                "name": "Test product 1",
+                "brand_name": "123",
+                "form": "tablet",
+                "dosage_value": "11",
+                "dosage_unit": "mg",
+                "barcode": "13133845123351",
+                "inn": "Paracetamol",
+                "atc_code": "",
+                "registration_number": "",
+                "in_national_list": true,
+                "in_reimbursed_program": false,
+                "subpackages_per_package": 2,
+                "subpackage_type": "blister",
+                "shelf_life_value": 2,
+                "shelf_life_unit": "years",
+                "retail_price": "110",
+                "vat_rate": 7,
+                "manufacturerId": 1,
+                "createdAt": "2025-12-05T20:19:35.582Z",
+                "updatedAt": "2026-01-08T15:15:37.335Z"
+            }
+        }
+    }
+]
+        } */
+        accessorKey: "shelfPlacement",
         header: "Полиця",
         cell: ({ getValue }) => {
-          return "-"
-        },
-        meta: {
-          form: {
-            type: "async-select",
-            required: true,
-            placeholder: "Виберіть постачальника",
-            options: [...(counterparties?.map((c) => ({ value: c.id, label: c.name })) || [])],
-          },
+          const shelfPlacement = getValue<{ id: number; name: string }>()
+          return shelfPlacement?.name || "-"
         },
       },
       {
-        accessorKey: "batch_number",
-        header: "Номер партії",
+        accessorKey: "quantity",
+        header: "Кількість",
         cell: ({ getValue }) => {
-          const batch_number = getValue<string>()
-          return batch_number ? batch_number : "-"
-        },
-        meta: {
-          form: {
-            type: "custom",
-            required: true,
-            placeholder: "Введіть номер партії",
-            render: ({ value, onChange, placeholder, disabled }: CustomRenderProps) => (
-              <div className="flex gap-2 w-full">
-                <Input
-                  value={value || ""}
-                  onChange={(e) => onChange(e.target.value)}
-                  placeholder={placeholder}
-                  disabled={disabled}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="secondary"
-                  onClick={() => {
-                    const generated = "BT-" + Math.random().toString(36).substring(7).toUpperCase()
-                    onChange(generated)
-                  }}
-                  disabled={disabled}
-                >
-                  <RefreshCw className="min-w-4 min-h-4" />
-                </Button>
-              </div>
-            ),
-          },
+          // Треба буде передавати вибрану кількість
+          return "1111"
         },
       },
-      {
-        accessorKey: "manufacture_date",
-        header: "Дата виробництва",
-        cell: ({ getValue }) => {
-          const manufacture_date = getValue<string>()
-          return manufacture_date ? new Date(manufacture_date).toLocaleDateString() : "-"
-        },
-        meta: { form: { type: "date", required: true, placeholder: "Дата виробництва" } },
-      },
-      {
-        accessorKey: "expiry_date",
-        header: "Придатний до",
-        cell: ({ getValue }) => {
-          const expiry_date = getValue<string>()
-          return expiry_date ? new Date(expiry_date).toLocaleDateString() : "-"
-        },
-        meta: { form: { type: "date", required: true, placeholder: "Придатний до" } },
-      },
+      // №  Чек(назва,доза,батч,дата виробництва) Полиця Кількість Ціна(за 1) Знижка Сума(за всі)
       {
         accessorKey: "purchase_price",
-        header: "Ціна закупівлі",
+        header: "Ціна",
         cell: ({ getValue }) => {
           const purchase_price = getValue<number>()
           return purchase_price ? purchase_price : "-"
         },
-        meta: { form: { type: "number", required: true, placeholder: "Ціна закупівлі" } },
+      },
+      {
+        accessorKey: "sum",
+        header: "Сума",
+        cell: ({ getValue }) => {
+          console.log("Треба рахувати (ціна * кількість вибрано)")
+          // const sum = getValue<number>()
+          return "1111"
+        },
       },
     ],
-    [medicalProducts, counterparties],
+    [],
   )
 }
